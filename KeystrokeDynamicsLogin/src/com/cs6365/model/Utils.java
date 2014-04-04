@@ -1,4 +1,5 @@
 package com.cs6365.model;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,6 +16,7 @@ import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 import java.util.Vector;
+
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -22,6 +24,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Environment;
@@ -30,7 +33,7 @@ import android.util.Log;
 public class Utils {
 
 	/**
-	 * Generates a random prime BigInteger of a given bit-length 
+	 * Generates a random prime BigInteger of a given bit-length
 	 * 
 	 * @param bitLength
 	 * @return
@@ -40,7 +43,7 @@ public class Utils {
 	}
 
 	/**
-	 * Generates a random BigInteger in Zq 
+	 * Generates a random BigInteger in Zq
 	 * 
 	 * @param q
 	 * @return
@@ -54,10 +57,9 @@ public class Utils {
 		}
 	}
 
-
 	/**
-	 * Generates a random polynomial of degree degree by generating the
-	 * degree-1 coefficients. The coefficients are in Zq
+	 * Generates a random polynomial of degree degree by generating the degree-1
+	 * coefficients. The coefficients are in Zq
 	 * 
 	 * @param degree
 	 * @param q
@@ -109,7 +111,7 @@ public class Utils {
 			BigInteger lambdai = BigInteger.ONE;
 			for (int j = 0; j < x.size(); j++) {
 				if (j != i) {
-					xj = x.get(j);				
+					xj = x.get(j);
 					lambdai = lambdai.multiply(BigInteger.valueOf(xj));
 				}
 			}
@@ -164,7 +166,6 @@ public class Utils {
 			padded[i] = bytes[i];
 		return padded;
 	}
-
 
 	/**
 	 * Encrypts a message using the given key and the AES algorithm
@@ -223,7 +224,6 @@ public class Utils {
 		return deciphertext;
 	}
 
-
 	/**
 	 * Writes bytes to the file described by the path path
 	 * 
@@ -237,46 +237,30 @@ public class Utils {
 			fos = ctx.openFileOutput(path, Context.MODE_PRIVATE);
 			fos.write(bytes);
 			fos.close();
-			Log.d("writeToFile",path);
+			Log.d("writeToFile", path);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/*
-	public static void testFile(String s, String path, Context ctx) {
-		FileOutputStream fos;
-		try {
-			fos = ctx.openFileOutput(path, Context.MODE_PRIVATE);
-			fos.write(s.getBytes());
-			fos.close();
-			Log.d("writeToFile",path);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		
-		FileInputStream fis = null;
-		StringBuffer fileContent = new StringBuffer("");
-		try {
-			fis = ctx.openFileInput(path);
-			byte[] buffer = new byte[1024];
-			int val = fis.read(buffer);;
-			while ( val!= -1) {
-				fileContent.append((new String(buffer)).substring(0, val));
-				val=fis.read(buffer);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		Log.d("test1",s);
-		Log.d("test2",fileContent.toString());
-	}*/
-	
+	 * public static void testFile(String s, String path, Context ctx) {
+	 * FileOutputStream fos; try { fos = ctx.openFileOutput(path,
+	 * Context.MODE_PRIVATE); fos.write(s.getBytes()); fos.close();
+	 * Log.d("writeToFile",path); } catch (FileNotFoundException e) {
+	 * e.printStackTrace(); } catch (IOException e) { e.printStackTrace(); }
+	 * 
+	 * 
+	 * FileInputStream fis = null; StringBuffer fileContent = new
+	 * StringBuffer(""); try { fis = ctx.openFileInput(path); byte[] buffer =
+	 * new byte[1024]; int val = fis.read(buffer);; while ( val!= -1) {
+	 * fileContent.append((new String(buffer)).substring(0, val));
+	 * val=fis.read(buffer); } } catch (IOException e) { e.printStackTrace(); }
+	 * Log.d("test1",s); Log.d("test2",fileContent.toString()); }
+	 */
+
 	/**
 	 * Reads the file at the location path and returns the content in bytes
 	 * 
@@ -302,17 +286,17 @@ public class Utils {
 		try {
 			fis = ctx.openFileInput(path);
 			byte[] buffer = new byte[1024];
-			int val = fis.read(buffer);;
-			while ( val!= -1) {
+			int val = fis.read(buffer);
+			;
+			while (val != -1) {
 				fileContent.append((new String(buffer)).substring(0, val));
-				val=fis.read(buffer);
+				val = fis.read(buffer);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return fileContent.toString();
 	}
-	
 
 	/**
 	 * Checks if external storage is available for read and write
@@ -320,11 +304,11 @@ public class Utils {
 	 * @return
 	 */
 	public boolean isExternalStorageWritable() {
-	    String state = Environment.getExternalStorageState();
-	    if (Environment.MEDIA_MOUNTED.equals(state)) {
-	        return true;
-	    }
-	    return false;
+		String state = Environment.getExternalStorageState();
+		if (Environment.MEDIA_MOUNTED.equals(state)) {
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -333,14 +317,14 @@ public class Utils {
 	 * @return
 	 */
 	public boolean isExternalStorageReadable() {
-	    String state = Environment.getExternalStorageState();
-	    if (Environment.MEDIA_MOUNTED.equals(state) ||
-	        Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-	        return true;
-	    }
-	    return false;
+		String state = Environment.getExternalStorageState();
+		if (Environment.MEDIA_MOUNTED.equals(state)
+				|| Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+			return true;
+		}
+		return false;
 	}
-	
+
 	/**
 	 * Gets the File filename located in "keystrokeLogin"
 	 * 
@@ -348,87 +332,87 @@ public class Utils {
 	 * @return
 	 */
 	public File getFile(String fileName) {
-	    File file = new File(Environment.getExternalStoragePublicDirectory(
-	            "keystrokeLogin"), fileName);
-	    if (!file.mkdirs()) {
-	        Log.e("file", "Directory not created");
-	    }
-	    return file;
+		File file = new File(
+				Environment.getExternalStoragePublicDirectory("keystrokeLogin"),
+				fileName);
+		if (!file.mkdirs()) {
+			Log.e("file", "Directory not created");
+		}
+		return file;
 	}
-	
-	
+
 	/**
-	 * Writes the string value in the file named path inside the folder KeystrokeDynamics
-	 *  
+	 * Writes the string value in the file named path inside the folder
+	 * KeystrokeDynamics
+	 * 
 	 * @param path
 	 * @param value
 	 */
-	public static void writeTo(String path, String value){
+	public static void writeTo(String path, String value) {
 
-	    File root = android.os.Environment.getExternalStorageDirectory(); 
-	    Log.d("writeTo","\nExternal file system root: "+root);
+		File root = android.os.Environment.getExternalStorageDirectory();
+		Log.d("writeTo", "\nExternal file system root: " + root);
 
-	    File dir = new File (root.getAbsolutePath() + "/KeystrokeDynamics");
-	    dir.mkdirs();
-	    File file = new File(dir, path);
+		File dir = new File(root.getAbsolutePath() + "/KeystrokeDynamics");
+		dir.mkdirs();
+		File file = new File(dir, path);
 
-	    try {
-	        FileOutputStream f = new FileOutputStream(file);
-	        PrintWriter pw = new PrintWriter(f);
-	        pw.println(value);
-	        pw.flush();
-	        pw.close();
-	        f.close();
-	    } catch (FileNotFoundException e) {
-	        e.printStackTrace();
-	        Log.i("fileInfo", "******* File not found. Did you" +
-	                " add a WRITE_EXTERNAL_STORAGE permission to the   manifest?");
-	    } catch (IOException e) {
-	        e.printStackTrace();
-	    }   
-	    Log.d("writeTo","\n\nFile written to "+file);
+		try {
+			FileOutputStream f = new FileOutputStream(file);
+			PrintWriter pw = new PrintWriter(f);
+			pw.println(value);
+			pw.flush();
+			pw.close();
+			f.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			Log.i("fileInfo",
+					"******* File not found. Did you"
+							+ " add a WRITE_EXTERNAL_STORAGE permission to the   manifest?");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Log.d("writeTo", "\n\nFile written to " + file);
 	}
-	
-	
+
 	/**
 	 * Reads the file path under the folder KeystrokeDynamics
+	 * 
 	 * @param path
 	 */
-	public static void readFrom(String path){
-		 Log.d("writeTo","read");
-	   // InputStream is = this.getResources().openRawResource(R.raw.textfile);
-	    File root = android.os.Environment.getExternalStorageDirectory();  
-	    File dir = new File (root.getAbsolutePath() + "/KeystrokeDynamics");
-	    dir.mkdirs();
-	    File file = new File(dir, path);
-	    InputStream is=null;
+	public static String readFrom(String path) {
+		Log.d("writeTo", "read");
+		File root = android.os.Environment.getExternalStorageDirectory();
+		File dir = new File(root.getAbsolutePath() + "/KeystrokeDynamics");
+		dir.mkdirs();
+		File file = new File(dir, path);
+		InputStream is = null;
 		try {
 			is = new FileInputStream(file);
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
 		}
-	    InputStreamReader isr = new InputStreamReader(is);
-	    BufferedReader br = new BufferedReader(isr, 8192);    // 2nd arg is buffer size
+		InputStreamReader isr = new InputStreamReader(is);
+		BufferedReader br = new BufferedReader(isr, 8192); // 2nd arg is buffer
+															// size
 
-	    // More efficient (less readable) implementation of above is the composite expression
-	    /*BufferedReader br = new BufferedReader(new InputStreamReader(
-	            this.getResources().openRawResource(R.raw.textfile)), 8192);*/
-
-	    try {
-	        String test;    
-	        while (true){               
-	            test = br.readLine();   
-	            // readLine() returns null if no more lines in the file
-	            if(test == null) break;
-	            Log.d("readFrom","\n"+"    "+test);
-	        }
-	        isr.close();
-	        is.close();
-	        br.close();
-	    } catch (IOException e) {
-	        e.printStackTrace();
-	    }
-	    Log.d("writeTo","\n\nThat is all");
+		StringBuilder sb = new StringBuilder();
+		try {
+			String line = br.readLine() ;
+			while (line!=null) {
+				sb.append(line);
+				line = br.readLine();
+			}
+			isr.close();
+			is.close();
+			br.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Log.d("writeTo", "\n\nThat is all");
+		return sb.toString();
 	}
-	
+
+
+
 }

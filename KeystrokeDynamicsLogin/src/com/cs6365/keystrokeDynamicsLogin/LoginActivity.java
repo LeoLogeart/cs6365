@@ -1,9 +1,6 @@
 package com.cs6365.keystrokeDynamicsLogin;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Vector;
 
@@ -22,7 +19,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.cs6365.model.Authentication;
-import com.cs6365.model.Utils;
+import com.cs6365.model.Testing;
 
 public class LoginActivity extends Activity {
 
@@ -120,17 +117,18 @@ public class LoginActivity extends Activity {
 				}
 				
 				if(register){	
-					//////////////
-					DateFormat dateFormat = new SimpleDateFormat("dd;MM;yyyy;HH:mm:ss",java.util.Locale.getDefault());
-					Calendar cal = Calendar.getInstance();
-					System.out.println(dateFormat.format(cal.getTime()));
-					Utils.writeTo("PIN"+name+dateFormat.format(cal.getTime())+".txt",pwd.getText().toString()+","+str.toString());
-
-					pwd.setText("");
-					lastDown=0;
-					pressTime = new ArrayList<Long>();
-					timeBetweenPress = new ArrayList<Long>();
-					//////////////
+					Testing.getMean();
+//					//////////////
+//					DateFormat dateFormat = new SimpleDateFormat("dd;MM;yyyy;HH:mm:ss",java.util.Locale.getDefault());
+//					Calendar cal = Calendar.getInstance();
+//					System.out.println(dateFormat.format(cal.getTime()));
+//					Utils.writeTo("PIN"+name+dateFormat.format(cal.getTime())+".txt",pwd.getText().toString()+","+str.toString());
+//
+//					pwd.setText("");
+//					lastDown=0;
+//					pressTime = new ArrayList<Long>();
+//					timeBetweenPress = new ArrayList<Long>();
+//					//////////////
 					//Authentication.initialization(name, featureVector.size(),pwd.getText().toString(), getApplicationContext());
 				} else {
 					if(Authentication.authenticate(featureVector, name, pwd.getText().toString(), getApplicationContext())){

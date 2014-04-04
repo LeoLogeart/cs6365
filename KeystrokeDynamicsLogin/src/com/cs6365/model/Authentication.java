@@ -11,7 +11,7 @@ import android.util.Log;
 public class Authentication {
 
 
-	private final static int thresholdPress=100;
+	private final static int thresholdPress=110;
 	private final static int thresholdTimeBetweenPress=300;
 	private final static int hSize = 10;
 	private final static int hByteSize = 3200;
