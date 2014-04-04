@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">KeystrokeDynamicsLogin</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_login_alpha">LoginAlphaActivity</string>
+    <string name="name">Username : </string>
+    <string name="login">Login</string>
+    <string name="loginP">Login PIN</string>
+    <string name="reg">Register</string>
+    <string name="regP">Register PIN</string>
+
+</resources>
