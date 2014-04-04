@@ -1,5 +1,6 @@
 package com.cs6365.model;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,6 +15,7 @@ import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Vector;
 
@@ -104,6 +106,7 @@ public class Utils {
 	 */
 	public static BigInteger interpolate(Vector<Integer> x,
 			Vector<BigInteger> y, BigInteger q) {
+		//TODO
 		BigInteger result = BigInteger.ZERO;
 		int xi, xj;
 		for (int i = 0; i < x.size(); i++) {
@@ -243,8 +246,44 @@ public class Utils {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		Log.d("writeToFile","size "+bytes.length);
+		
+		/*FileInputStream fis = null;
+		Log.e("readFrom","length "+bytes.length);
+		byte[] buffer = new byte[bytes.length];
+		try {
+			fis = ctx.openFileInput(path);
+			int val = fis.read(buffer);
+			
+			if (val != -1) {
+				Log.e("readFrom","read size "+val);
+			}
+		} catch (IOException e) { e.printStackTrace(); }
+		System.out.println(bytes.toString()+"\n\nbuffer:\n\n"+buffer.toString());
+		Log.e("readFrom","equal "+(Arrays.equals(bytes,buffer)));*/
+	  
+		//return buffer;
+		
 	}
+	public static byte[] readFrom(String path, Context ctx) {
 
+		FileInputStream fis = null;
+		byte[] buffer = new byte[4096];
+		byte[] res = null;
+		try {
+			fis = ctx.openFileInput(path);
+			int val = fis.read(buffer);
+			
+			if (val == 4096) {
+				Log.e("readFrom","file too big "+val);
+			} else {
+				Log.d("readFrom","size "+val);
+				res=Arrays.copyOf(buffer, val);
+			}
+		} catch (IOException e) { e.printStackTrace(); }
+	  
+		return res;
+	}
 	/*
 	 * public static void testFile(String s, String path, Context ctx) {
 	 * FileOutputStream fos; try { fos = ctx.openFileOutput(path,
@@ -287,9 +326,28 @@ public class Utils {
 			fis = ctx.openFileInput(path);
 			byte[] buffer = new byte[1024];
 			int val = fis.read(buffer);
-			;
+			
 			while (val != -1) {
 				fileContent.append((new String(buffer)).substring(0, val));
+				val = fis.read(buffer);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return fileContent.toString();
+	}
+	
+	
+	public static String readFileString2(String path, Context ctx) {
+		FileInputStream fis = null;
+		StringBuffer fileContent = new StringBuffer("");
+		try {
+			fis = ctx.openFileInput(path);
+			byte[] buffer = new byte[1024];
+			int val = fis.read(buffer);
+			
+			while (val != -1) {
+				fileContent.append((new String(buffer)));
 				val = fis.read(buffer);
 			}
 		} catch (IOException e) {

@@ -10,17 +10,15 @@ import android.util.Log;
 
 public class Authentication {
 
-
-	private final static int thresholdPress=110;
-	private final static int thresholdTimeBetweenPress=300;
+	private final static int thresholdPress = 110;
+	private final static int thresholdTimeBetweenPress = 300;
 	private final static int hSize = 10;
 	private final static int hByteSize = 3200;
 	private final static double k = 1.;
 
-	
 	/**
-	 * Initialization of the data structures : Create empty history file, and initial
-	 * instruction table
+	 * Initialization of the data structures : Create empty history file, and
+	 * initial instruction table
 	 * 
 	 * @param userId
 	 * @param m
@@ -41,12 +39,12 @@ public class Authentication {
 			// Computation of initial values for alpha and beta
 			int x1 = 2 * (i + 1);
 			int x2 = x1 + 1;
-			BigInteger y1 = Utils.valueOfPolynomial(x1, polynomial).mod(q);
-			BigInteger y2 = Utils.valueOfPolynomial(x2, polynomial).mod(q);
-			BigInteger hash1 = Utils.computeSha256(x1, pwd).mod(q);
-			BigInteger hash2 = Utils.computeSha256(x2, pwd).mod(q);
-			BigInteger alpha = y1.multiply(hash1);
-			BigInteger beta = y2.multiply(hash2);
+			BigInteger y1 = Utils.valueOfPolynomial(x1, polynomial);
+			BigInteger y2 = Utils.valueOfPolynomial(x2, polynomial);
+			BigInteger hash1 = Utils.computeSha256(x1, pwd);
+			BigInteger hash2 = Utils.computeSha256(x2, pwd);
+			BigInteger alpha = y1.multiply(hash1).mod(q);
+			BigInteger beta = y2.multiply(hash2).mod(q);
 			alphas.add(alpha);
 			betas.add(beta);
 		}
@@ -62,11 +60,12 @@ public class Authentication {
 		}
 		// Padding and encryption
 		byte[] history = Utils.pad(emptyBytes, hByteSize);
+		System.out.println("historypadded : \n"+(new String(history)));
 		byte[] cipher = Utils.encrypt(history, hpwd.toString().toCharArray());
+		System.out.println("historyenc : \n"+(new String(cipher)));
 		Utils.writeToFile(cipher, "history" + userId, ctx);
 	}
 
-	
 	/**
 	 * Proceeds to the authentication of userId. Returns true if authentication
 	 * succeeded and false otherwise.
@@ -90,28 +89,45 @@ public class Authentication {
 		Vector<BigInteger> ys = new Vector<BigInteger>();
 		int threshold = thresholdTimeBetweenPress;
 		for (int ind = 0; ind < featureVector.size(); ind++) {// TODO
-			// Computation of the set of m points (xi,yi)
-			if ( ind == (featureVector.size() - 1) / 2) {
+//			 Computation of the set of m points (xi,yi)
+//			 if ( ind == (featureVector.size() - 1) / 2) {
+//			 threshold = thresholdPress;
+//			 }
+//			 Double feature = featureVector.get(ind);
+//			 if (feature < threshold) {
+//			 x = 2 * (ind + 1);
+//			 BigInteger hash = Utils.computeSha256(x, pwd).mod(q);
+//			 y = alphas.get(ind).divide(hash);
+//			 } else {
+//			 x = 2 * (ind + 1) + 1;
+//			 BigInteger hash = Utils.computeSha256(x, pwd).mod(q);
+//			 y = betas.get(ind).divide(hash);
+//			 }
+
+			if (ind == (featureVector.size() - 1) / 2) {
 				threshold = thresholdPress;
 			}
-				Double feature = featureVector.get(ind);
-				if (feature < threshold) {
-					x = 2 * (ind + 1);
-					BigInteger hash = Utils.computeSha256(x, pwd).mod(q);
-					y = alphas.get(ind).divide(hash);
-				} else {
-					x = 2 * (ind + 1) + 1;
-					BigInteger hash = Utils.computeSha256(x, pwd).mod(q);
-					y = betas.get(ind).divide(hash);
-				}
-			//TODO
+			Double feature = featureVector.get(ind);
+			if (feature < threshold) {
+				x = 2 * (ind + 1);
+				BigInteger hashInv = Utils.computeSha256(x, pwd).modInverse(q);
+				y = alphas.get(ind).multiply(hashInv).mod(q);
+			} else {
+				x = 2 * (ind + 1) + 1;
+				BigInteger hashInv = Utils.computeSha256(x, pwd).modInverse(q);
+				y = betas.get(ind).multiply(hashInv).mod(q);
+			}
+			// TODO
 			xs.add(x);
 			ys.add(y);
 		}
 		// Interpolation to get the hardened password
 		BigInteger hpwd = Utils.interpolate(xs, ys, q);
 		// Attempt to decrypt the file
-		byte[] history = Utils.readFile("history" + userId);
+		//byte[] history = Utils.readFile("history" + userId);
+		byte[] history = Utils.readFrom("history" + userId,ctx);
+		System.out.println(history.length);
+		System.out.println("historyEnc2 : \n"+(new String(history)));
 		history = Utils.decrypt(history, hpwd.toString().toCharArray());
 		String historyString = "";
 		try {
@@ -119,14 +135,17 @@ public class Authentication {
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
+		System.out.println("historyDec : \n"+historyString);
 		String[] parts = historyString.split("/");
 		// If it is decrypted, the content should be a set of double values
 		// followed
 		// by a slash, followed by the same set of values
 
 		// Checking that the file is split into two parts
-		if (parts.length != 2)
+		if (parts.length != 2){
+			Log.e("Authenticate","problem decrypting history");
 			return false;
+		}
 		String part0 = parts[0];
 		String part1 = parts[1].substring(0, part0.length());
 		// Checking that the two parts are equal
@@ -160,7 +179,7 @@ public class Authentication {
 			polynomial.add(0, hpwd);
 			Vector<BigInteger> newAlphas = new Vector<BigInteger>();
 			Vector<BigInteger> newBetas = new Vector<BigInteger>();
-			threshold=thresholdTimeBetweenPress;
+			threshold = thresholdTimeBetweenPress;
 			for (int i = 0; i < m; i++) {
 				// Computation of the new values for alpha and beta TODO
 				int x1 = 2 * (i + 1);
@@ -170,29 +189,29 @@ public class Authentication {
 				if (hFile.getSize() > hSize) {
 					double mu = meanValues.get(i);
 					double sigma = deviations.get(i);
-					if ( i == (featureVector.size() - 1) / 2) {
+					if (i == (featureVector.size() - 1) / 2) {
 						threshold = thresholdPress;
 					}
 					if (Math.abs(mu - threshold) > k * sigma) {
 						if (mu < threshold) {
-							y1 = Utils.valueOfPolynomial(x1, polynomial).mod(q);
+							y1 = Utils.valueOfPolynomial(x1, polynomial);
 							y2 = Utils.random(q);
 						} else {
 							y1 = Utils.random(q);
-							y2 = Utils.valueOfPolynomial(x2, polynomial).mod(q);
+							y2 = Utils.valueOfPolynomial(x2, polynomial);
 						}
 					} else {
-						y1 = Utils.valueOfPolynomial(x1, polynomial).mod(q);
-						y2 = Utils.valueOfPolynomial(x2, polynomial).mod(q);
+						y1 = Utils.valueOfPolynomial(x1, polynomial);
+						y2 = Utils.valueOfPolynomial(x2, polynomial);
 					}
 				} else {
-					y1 = Utils.valueOfPolynomial(x1, polynomial).mod(q);
-					y2 = Utils.valueOfPolynomial(x2, polynomial).mod(q);
+					y1 = Utils.valueOfPolynomial(x1, polynomial);
+					y2 = Utils.valueOfPolynomial(x2, polynomial);
 				}
-				BigInteger hash1 = Utils.computeSha256(x1, pwd).mod(q);
-				BigInteger hash2 = Utils.computeSha256(x2, pwd).mod(q);
-				BigInteger alpha = y1.multiply(hash1);
-				BigInteger beta = y2.multiply(hash2);
+				BigInteger hash1 = Utils.computeSha256(x1, pwd);
+				BigInteger hash2 = Utils.computeSha256(x2, pwd);
+				BigInteger alpha = y1.multiply(hash1).mod(q);
+				BigInteger beta = y2.multiply(hash2).mod(q);
 				newAlphas.add(alpha);
 				newBetas.add(beta);
 			}// TODO
@@ -204,8 +223,6 @@ public class Authentication {
 			return false;
 	}
 
-
-	
 	/**
 	 * Stores the instruction table of the given user
 	 * 
@@ -223,9 +240,6 @@ public class Authentication {
 		Utils.writeToFile(content.getBytes(), "inst" + userId, ctx);
 		// Utils.testFile(content, "inst" + userId, ctx);
 	}
-
-	
-	
 
 	/**
 	 * Loads the instruction table of the given user
@@ -260,8 +274,6 @@ public class Authentication {
 		return result;
 	}
 
-
-	
 	/**
 	 * Extracts the entries of a history file
 	 * 
@@ -286,8 +298,6 @@ public class Authentication {
 		return hFile;
 	}
 
-	
-	
 	/**
 	 * Checks if a userId already exists
 	 * 

@@ -105,19 +105,19 @@ public class LoginActivity extends Activity {
 				StringBuilder str = new StringBuilder();
 				Vector<Double> featureVector = new Vector<Double>();
 				for (int i =0 ; i<timeBetweenPress.size();i++){
-					Log.d("time between each btn", timeBetweenPress.get(i).toString());
+					//Log.d("time between each btn", timeBetweenPress.get(i).toString());
 					featureVector.add(timeBetweenPress.get(i).doubleValue());
 					str.append(timeBetweenPress.get(i)+";");
 				}
 				
 				for (int j =0 ; j<pressTime.size();j++){
-					Log.d("pressed time", pressTime.get(j).toString());
+					//Log.d("pressed time", pressTime.get(j).toString());
 					featureVector.add(pressTime.get(j).doubleValue());
 					str.append(pressTime.get(j)+";");
 				}
 				
 				if(register){	
-					Testing.getMean();
+//					Testing.getMean();
 //					//////////////
 //					DateFormat dateFormat = new SimpleDateFormat("dd;MM;yyyy;HH:mm:ss",java.util.Locale.getDefault());
 //					Calendar cal = Calendar.getInstance();
@@ -129,7 +129,7 @@ public class LoginActivity extends Activity {
 //					pressTime = new ArrayList<Long>();
 //					timeBetweenPress = new ArrayList<Long>();
 //					//////////////
-					//Authentication.initialization(name, featureVector.size(),pwd.getText().toString(), getApplicationContext());
+					Authentication.initialization(name, featureVector.size(),pwd.getText().toString(), getApplicationContext());
 				} else {
 					if(Authentication.authenticate(featureVector, name, pwd.getText().toString(), getApplicationContext())){
 						Toast.makeText(getApplicationContext(),
