@@ -7,7 +7,6 @@ import java.util.Vector;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -19,7 +18,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.cs6365.model.Authentication;
-import com.cs6365.model.Testing;
 
 public class LoginActivity extends Activity {
 
@@ -129,6 +127,7 @@ public class LoginActivity extends Activity {
 //					pressTime = new ArrayList<Long>();
 //					timeBetweenPress = new ArrayList<Long>();
 //					//////////////
+					
 					Authentication.initialization(name, featureVector.size(),pwd.getText().toString(), getApplicationContext());
 				} else {
 					if(Authentication.authenticate(featureVector, name, pwd.getText().toString(), getApplicationContext())){

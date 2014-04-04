@@ -10,8 +10,8 @@ import android.util.Log;
 
 public class Authentication {
 
-	private final static int thresholdPress = 110;
-	private final static int thresholdTimeBetweenPress = 300;
+	private final static int thresholdPress = 1100;
+	private final static int thresholdTimeBetweenPress = 3000;
 	private final static int hSize = 10;
 	private final static int hByteSize = 3200;
 	private final static double k = 1.;
@@ -60,9 +60,9 @@ public class Authentication {
 		}
 		// Padding and encryption
 		byte[] history = Utils.pad(emptyBytes, hByteSize);
-		System.out.println("historypadded : \n"+(new String(history)));
+		//System.out.println("historypadded : \n"+(new String(history)));
 		byte[] cipher = Utils.encrypt(history, hpwd.toString().toCharArray());
-		System.out.println("historyenc : \n"+(new String(cipher)));
+		//System.out.println("historyenc : \n"+(new String(cipher)));
 		Utils.writeToFile(cipher, "history" + userId, ctx);
 	}
 
@@ -88,22 +88,7 @@ public class Authentication {
 		Vector<Integer> xs = new Vector<Integer>();
 		Vector<BigInteger> ys = new Vector<BigInteger>();
 		int threshold = thresholdTimeBetweenPress;
-		for (int ind = 0; ind < featureVector.size(); ind++) {// TODO
-//			 Computation of the set of m points (xi,yi)
-//			 if ( ind == (featureVector.size() - 1) / 2) {
-//			 threshold = thresholdPress;
-//			 }
-//			 Double feature = featureVector.get(ind);
-//			 if (feature < threshold) {
-//			 x = 2 * (ind + 1);
-//			 BigInteger hash = Utils.computeSha256(x, pwd).mod(q);
-//			 y = alphas.get(ind).divide(hash);
-//			 } else {
-//			 x = 2 * (ind + 1) + 1;
-//			 BigInteger hash = Utils.computeSha256(x, pwd).mod(q);
-//			 y = betas.get(ind).divide(hash);
-//			 }
-
+		for (int ind = 0; ind < featureVector.size(); ind++) {
 			if (ind == (featureVector.size() - 1) / 2) {
 				threshold = thresholdPress;
 			}
@@ -117,7 +102,6 @@ public class Authentication {
 				BigInteger hashInv = Utils.computeSha256(x, pwd).modInverse(q);
 				y = betas.get(ind).multiply(hashInv).mod(q);
 			}
-			// TODO
 			xs.add(x);
 			ys.add(y);
 		}
@@ -126,8 +110,8 @@ public class Authentication {
 		// Attempt to decrypt the file
 		//byte[] history = Utils.readFile("history" + userId);
 		byte[] history = Utils.readFrom("history" + userId,ctx);
-		System.out.println(history.length);
-		System.out.println("historyEnc2 : \n"+(new String(history)));
+		//System.out.println(history.length);
+		//System.out.println("historyEnc2 : \n"+(new String(history)));
 		history = Utils.decrypt(history, hpwd.toString().toCharArray());
 		String historyString = "";
 		try {
@@ -135,7 +119,7 @@ public class Authentication {
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		System.out.println("historyDec : \n"+historyString);
+		//System.out.println("historyDec : \n"+historyString);
 		String[] parts = historyString.split("/");
 		// If it is decrypted, the content should be a set of double values
 		// followed
@@ -170,6 +154,7 @@ public class Authentication {
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
+
 			// Computation of mean values and standard deviations
 			Vector<Double> meanValues = hFile.computeMeanValues();
 			Vector<Double> deviations = hFile.computeDeviations();
@@ -181,7 +166,7 @@ public class Authentication {
 			Vector<BigInteger> newBetas = new Vector<BigInteger>();
 			threshold = thresholdTimeBetweenPress;
 			for (int i = 0; i < m; i++) {
-				// Computation of the new values for alpha and beta TODO
+				// Computation of the new values for alpha and beta
 				int x1 = 2 * (i + 1);
 				int x2 = x1 + 1;
 				BigInteger y1;
@@ -214,7 +199,7 @@ public class Authentication {
 				BigInteger beta = y2.multiply(hash2).mod(q);
 				newAlphas.add(alpha);
 				newBetas.add(beta);
-			}// TODO
+			}
 			InstructionTable newTable = new InstructionTable(newAlphas,
 					newBetas, q);
 			storeInstructionTable(newTable, userId, ctx);

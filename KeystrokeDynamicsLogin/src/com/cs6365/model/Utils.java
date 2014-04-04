@@ -196,6 +196,7 @@ public class Utils {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		System.out.println("\n\n\nKEY : "+(new String(key)));
 		return ciphertext;
 	}
 
@@ -224,9 +225,28 @@ public class Utils {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		System.out.println("\n\n\nKEY : "+(new String(key)));
 		return deciphertext;
 	}
 
+	
+	public static byte[] encrypt2(byte[] raw, byte[] clear) throws Exception {
+        SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
+        byte[] encrypted = cipher.doFinal(clear);
+        return encrypted;
+    }
+
+    public static byte[] decrypt2(byte[] raw, byte[] encrypted) throws Exception {
+        SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, skeySpec);
+        byte[] decrypted = cipher.doFinal(encrypted);
+        return decrypted;
+    }
+    
+    
 	/**
 	 * Writes bytes to the file described by the path path
 	 * 
