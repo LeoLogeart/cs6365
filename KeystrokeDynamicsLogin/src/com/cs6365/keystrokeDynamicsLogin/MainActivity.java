@@ -103,7 +103,11 @@ public class MainActivity extends Activity {
 		btnReg.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (Authentication.userExists(name.getText().toString(),
+				if(name.getText().toString().equals("")){
+					Toast.makeText(getApplicationContext(),
+							"Invalid username", Toast.LENGTH_SHORT)
+							.show();
+				} else if (Authentication.userExists(name.getText().toString(),
 						getApplicationContext())) {
 					Toast.makeText(getApplicationContext(),
 							"Username already taken", Toast.LENGTH_SHORT)

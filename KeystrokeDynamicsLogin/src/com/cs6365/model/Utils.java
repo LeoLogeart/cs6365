@@ -1,16 +1,11 @@
 package com.cs6365.model;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.RandomAccessFile;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -29,7 +24,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Environment;
 import android.util.Log;
 
 public class Utils {
@@ -106,7 +100,6 @@ public class Utils {
 	 */
 	public static BigInteger interpolate(Vector<Integer> x,
 			Vector<BigInteger> y, BigInteger q) {
-		//TODO
 		BigInteger result = BigInteger.ZERO;
 		int xi, xj;
 		for (int i = 0; i < x.size(); i++) {
@@ -196,7 +189,7 @@ public class Utils {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("\n\n\nKEY : "+(new String(key)));
+		//System.out.println("\n\n\nKEY : "+(new String(key)));
 		return ciphertext;
 	}
 
@@ -225,26 +218,9 @@ public class Utils {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("\n\n\nKEY : "+(new String(key)));
+		//System.out.println("\n\n\nKEY : "+(new String(key)));
 		return deciphertext;
 	}
-
-	
-	public static byte[] encrypt2(byte[] raw, byte[] clear) throws Exception {
-        SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
-        byte[] encrypted = cipher.doFinal(clear);
-        return encrypted;
-    }
-
-    public static byte[] decrypt2(byte[] raw, byte[] encrypted) throws Exception {
-        SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.DECRYPT_MODE, skeySpec);
-        byte[] decrypted = cipher.doFinal(encrypted);
-        return decrypted;
-    }
     
     
 	/**
@@ -267,24 +243,15 @@ public class Utils {
 			e.printStackTrace();
 		}
 		Log.d("writeToFile","size "+bytes.length);
-		
-		/*FileInputStream fis = null;
-		Log.e("readFrom","length "+bytes.length);
-		byte[] buffer = new byte[bytes.length];
-		try {
-			fis = ctx.openFileInput(path);
-			int val = fis.read(buffer);
-			
-			if (val != -1) {
-				Log.e("readFrom","read size "+val);
-			}
-		} catch (IOException e) { e.printStackTrace(); }
-		System.out.println(bytes.toString()+"\n\nbuffer:\n\n"+buffer.toString());
-		Log.e("readFrom","equal "+(Arrays.equals(bytes,buffer)));*/
-	  
-		//return buffer;
-		
 	}
+	
+	/**
+	 * Returns the bytes contained in file located at path.
+	 * 
+	 * @param path
+	 * @param ctx
+	 * @return
+	 */
 	public static byte[] readFrom(String path, Context ctx) {
 
 		FileInputStream fis = null;
@@ -326,7 +293,7 @@ public class Utils {
 	 * @param path
 	 * @return
 	 */
-	public static byte[] readFile(String path) {
+	/*public static byte[] readFile(String path) {
 		byte[] b = null;
 		try {
 			RandomAccessFile f = new RandomAccessFile(path, "r");
@@ -337,8 +304,15 @@ public class Utils {
 			e.printStackTrace();
 		}
 		return b;
-	}
+	}*/
 
+	/**
+	 * Returns content of file path.
+	 * 
+	 * @param path
+	 * @param ctx
+	 * @return
+	 */
 	public static String readFileString(String path, Context ctx) {
 		FileInputStream fis = null;
 		StringBuffer fileContent = new StringBuffer("");
@@ -357,51 +331,33 @@ public class Utils {
 		return fileContent.toString();
 	}
 	
-	
-	public static String readFileString2(String path, Context ctx) {
-		FileInputStream fis = null;
-		StringBuffer fileContent = new StringBuffer("");
-		try {
-			fis = ctx.openFileInput(path);
-			byte[] buffer = new byte[1024];
-			int val = fis.read(buffer);
-			
-			while (val != -1) {
-				fileContent.append((new String(buffer)));
-				val = fis.read(buffer);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return fileContent.toString();
-	}
 
 	/**
 	 * Checks if external storage is available for read and write
 	 * 
 	 * @return
 	 */
-	public boolean isExternalStorageWritable() {
+	/*public boolean isExternalStorageWritable() {
 		String state = Environment.getExternalStorageState();
 		if (Environment.MEDIA_MOUNTED.equals(state)) {
 			return true;
 		}
 		return false;
-	}
+	}*/
 
 	/**
 	 * Checks if external storage is available to at least read
 	 * 
 	 * @return
 	 */
-	public boolean isExternalStorageReadable() {
+	/*public boolean isExternalStorageReadable() {
 		String state = Environment.getExternalStorageState();
 		if (Environment.MEDIA_MOUNTED.equals(state)
 				|| Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
 			return true;
 		}
 		return false;
-	}
+	}*/
 
 	/**
 	 * Gets the File filename located in "keystrokeLogin"
@@ -409,7 +365,7 @@ public class Utils {
 	 * @param fileName
 	 * @return
 	 */
-	public File getFile(String fileName) {
+	/*public File getFile(String fileName) {
 		File file = new File(
 				Environment.getExternalStoragePublicDirectory("keystrokeLogin"),
 				fileName);
@@ -417,7 +373,7 @@ public class Utils {
 			Log.e("file", "Directory not created");
 		}
 		return file;
-	}
+	}*/
 
 	/**
 	 * Writes the string value in the file named path inside the folder
@@ -458,7 +414,7 @@ public class Utils {
 	 * 
 	 * @param path
 	 */
-	public static String readFrom(String path) {
+	/*public static String readFrom(String path) {
 		Log.d("writeTo", "read");
 		File root = android.os.Environment.getExternalStorageDirectory();
 		File dir = new File(root.getAbsolutePath() + "/KeystrokeDynamics");
@@ -489,7 +445,7 @@ public class Utils {
 		}
 		Log.d("writeTo", "\n\nThat is all");
 		return sb.toString();
-	}
+	}*/
 
 
 

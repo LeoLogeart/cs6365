@@ -60,9 +60,7 @@ public class Authentication {
 		}
 		// Padding and encryption
 		byte[] history = Utils.pad(emptyBytes, hByteSize);
-		//System.out.println("historypadded : \n"+(new String(history)));
 		byte[] cipher = Utils.encrypt(history, hpwd.toString().toCharArray());
-		//System.out.println("historyenc : \n"+(new String(cipher)));
 		Utils.writeToFile(cipher, "history" + userId, ctx);
 	}
 
@@ -108,10 +106,7 @@ public class Authentication {
 		// Interpolation to get the hardened password
 		BigInteger hpwd = Utils.interpolate(xs, ys, q);
 		// Attempt to decrypt the file
-		//byte[] history = Utils.readFile("history" + userId);
-		byte[] history = Utils.readFrom("history" + userId,ctx);
-		//System.out.println(history.length);
-		//System.out.println("historyEnc2 : \n"+(new String(history)));
+		byte[] history = Utils.readFrom("history" + userId, ctx);
 		history = Utils.decrypt(history, hpwd.toString().toCharArray());
 		String historyString = "";
 		try {
@@ -119,93 +114,91 @@ public class Authentication {
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		//System.out.println("historyDec : \n"+historyString);
 		String[] parts = historyString.split("/");
 		// If it is decrypted, the content should be a set of double values
-		// followed
-		// by a slash, followed by the same set of values
+		// followed by a slash, followed by the same set of values
 
 		// Checking that the file is split into two parts
-		if (parts.length != 2){
-			Log.e("Authenticate","problem decrypting history");
+		if (parts.length != 2) {
+			Log.i("Authenticate", "history not decrypted : wrong password");
 			return false;
 		}
 		String part0 = parts[0];
 		String part1 = parts[1].substring(0, part0.length());
 		// Checking that the two parts are equal
-		if (part0.equals(part1)) {
-			// Reading history file
-			HistoryFile hFile = extractHistory(part0);
-			// Adding the new vector to the history
-			hFile.addEntry(featureVector);
-			// Truncate the history file if more than h attempts
-			if (hFile.getSize() > hSize) {
-				hFile.removeFirstEntry();
-			}
-			// Adding redundancy
-			String content = hFile.toString() + "/" + hFile.toString();
-			// Padding and encryption
-			try {
-				byte[] newHistory = content.getBytes("UTF-8");
-				newHistory = Utils.pad(newHistory, hByteSize);
-				byte[] cipher = Utils.encrypt(newHistory, hpwd.toString()
-						.toCharArray());
-				Utils.writeToFile(cipher, "history" + userId, ctx);
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			}
+		if (!part0.equals(part1)) {
+			Log.i("Authenticate", "history not decrypted : wrong password");
+			return false;
+		}
+		// Reading history file
+		HistoryFile hFile = extractHistory(part0);
+		// Adding the new vector to the history
+		hFile.addEntry(featureVector);
+		// Truncate the history file if more than h attempts
+		if (hFile.getSize() > hSize) {
+			hFile.removeFirstEntry();
+		}
+		// Adding redundancy
+		String content = hFile.toString() + "/" + hFile.toString();
+		// Padding and encryption
+		try {
+			byte[] newHistory = content.getBytes("UTF-8");
+			newHistory = Utils.pad(newHistory, hByteSize);
+			byte[] cipher = Utils.encrypt(newHistory, hpwd.toString()
+					.toCharArray());
+			Utils.writeToFile(cipher, "history" + userId, ctx);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 
-			// Computation of mean values and standard deviations
-			Vector<Double> meanValues = hFile.computeMeanValues();
-			Vector<Double> deviations = hFile.computeDeviations();
-			int m = featureVector.size();
-			Vector<BigInteger> polynomial = Utils.generateRandomPolynomial(
-					m - 1, q);
-			polynomial.add(0, hpwd);
-			Vector<BigInteger> newAlphas = new Vector<BigInteger>();
-			Vector<BigInteger> newBetas = new Vector<BigInteger>();
-			threshold = thresholdTimeBetweenPress;
-			for (int i = 0; i < m; i++) {
-				// Computation of the new values for alpha and beta
-				int x1 = 2 * (i + 1);
-				int x2 = x1 + 1;
-				BigInteger y1;
-				BigInteger y2;
-				if (hFile.getSize() > hSize) {
-					double mu = meanValues.get(i);
-					double sigma = deviations.get(i);
-					if (i == (featureVector.size() - 1) / 2) {
-						threshold = thresholdPress;
-					}
-					if (Math.abs(mu - threshold) > k * sigma) {
-						if (mu < threshold) {
-							y1 = Utils.valueOfPolynomial(x1, polynomial);
-							y2 = Utils.random(q);
-						} else {
-							y1 = Utils.random(q);
-							y2 = Utils.valueOfPolynomial(x2, polynomial);
-						}
-					} else {
+		// Computation of mean values and standard deviations
+		Vector<Double> meanValues = hFile.computeMeanValues();
+		Vector<Double> deviations = hFile.computeDeviations();
+		int m = featureVector.size();
+		Vector<BigInteger> polynomial = Utils
+				.generateRandomPolynomial(m - 1, q);
+		polynomial.add(0, hpwd);
+		Vector<BigInteger> newAlphas = new Vector<BigInteger>();
+		Vector<BigInteger> newBetas = new Vector<BigInteger>();
+		threshold = thresholdTimeBetweenPress;
+		for (int i = 0; i < m; i++) {
+			// Computation of the new values for alpha and beta
+			int x1 = 2 * (i + 1);
+			int x2 = x1 + 1;
+			BigInteger y1;
+			BigInteger y2;
+			if (hFile.getSize() > hSize) {
+				double mu = meanValues.get(i);
+				double sigma = deviations.get(i);
+				if (i == (featureVector.size() - 1) / 2) {
+					threshold = thresholdPress;
+				}
+				if (Math.abs(mu - threshold) > k * sigma) {
+					if (mu < threshold) {
 						y1 = Utils.valueOfPolynomial(x1, polynomial);
+						y2 = Utils.random(q);
+					} else {
+						y1 = Utils.random(q);
 						y2 = Utils.valueOfPolynomial(x2, polynomial);
 					}
 				} else {
 					y1 = Utils.valueOfPolynomial(x1, polynomial);
 					y2 = Utils.valueOfPolynomial(x2, polynomial);
 				}
-				BigInteger hash1 = Utils.computeSha256(x1, pwd);
-				BigInteger hash2 = Utils.computeSha256(x2, pwd);
-				BigInteger alpha = y1.multiply(hash1).mod(q);
-				BigInteger beta = y2.multiply(hash2).mod(q);
-				newAlphas.add(alpha);
-				newBetas.add(beta);
+			} else {
+				y1 = Utils.valueOfPolynomial(x1, polynomial);
+				y2 = Utils.valueOfPolynomial(x2, polynomial);
 			}
-			InstructionTable newTable = new InstructionTable(newAlphas,
-					newBetas, q);
-			storeInstructionTable(newTable, userId, ctx);
-			return true;
-		} else
-			return false;
+			BigInteger hash1 = Utils.computeSha256(x1, pwd);
+			BigInteger hash2 = Utils.computeSha256(x2, pwd);
+			BigInteger alpha = y1.multiply(hash1).mod(q);
+			BigInteger beta = y2.multiply(hash2).mod(q);
+			newAlphas.add(alpha);
+			newBetas.add(beta);
+		}
+		InstructionTable newTable = new InstructionTable(newAlphas, newBetas, q);
+		storeInstructionTable(newTable, userId, ctx);
+		return true;
 	}
 
 	/**
@@ -223,7 +216,6 @@ public class Authentication {
 					+ table.getBetas().get(i);
 		}
 		Utils.writeToFile(content.getBytes(), "inst" + userId, ctx);
-		// Utils.testFile(content, "inst" + userId, ctx);
 	}
 
 	/**
@@ -241,12 +233,6 @@ public class Authentication {
 		String path = "inst" + userId;
 		String content = "";
 		content = Utils.readFileString(path, ctx);
-		/*
-		 * BufferedReader br; try { String line; br = new BufferedReader(new
-		 * FileReader(path)); while ((line = br.readLine()) != null) { content
-		 * += line; } br.close(); } catch (IOException e) { e.printStackTrace();
-		 * }
-		 */
 		String[] parts = content.split("\\s+");
 		BigInteger q = new BigInteger(parts[0]);
 		for (int i = 1; i < parts.length; i = i + 2) {

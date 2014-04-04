@@ -1,8 +1,6 @@
 package com.cs6365.model;
 import java.util.Vector;
 
-import android.util.Log;
-
 public class HistoryFile {
 	private Vector<Vector<Double>> featureVectors;
 	

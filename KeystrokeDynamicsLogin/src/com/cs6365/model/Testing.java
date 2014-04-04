@@ -47,6 +47,7 @@ public class Testing {
 	
 	
 	/**
+	 * Returns the list of files in directory KeystrokeDynamics
 	 * 
 	 * @return
 	 */
