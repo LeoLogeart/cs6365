@@ -9,6 +9,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
+
+import android.content.Context;
+import android.util.Log;
 
 public class Testing {
 	
@@ -72,17 +76,36 @@ public class Testing {
 		ArrayList<File> files = (ArrayList<File>) getListFiles();
 		double meanPress=0;
 		double meanBetween=0;
+		double s=0.0;
+		double meanPressS=0;
+		double meanBetweenS=0;
+		double meanPressNS=0;
+		double meanBetweenNS=0;
 		String content;
 		for (File file : files) {
 			if (!file.isDirectory()) {
 				content = readFromFile(file);
 				meanPress+=getMeanPress(content);
 				meanBetween+=getMeanBetween(content);
+				if(file.getName().contains("side")||file.getName().contains("SIDE")){
+					s+=1;
+					meanPressS+=getMeanPress(content);
+					meanBetweenS+=getMeanBetween(content);
+				} else {
+					meanPressNS+=getMeanPress(content);
+					meanBetweenNS+=getMeanBetween(content);
+				}
 			}
 		}
 		double d1=meanPress/files.size();
 		double d2=meanBetween/files.size();
-		System.out.println("press: "+d1+"\nbetween: "+d2);
+		double d1S=meanPressS/s;
+		double d2S=meanBetweenS/s;
+		double d1NS=meanPressNS/(files.size()-s);
+		double d2NS=meanBetweenNS/(files.size()-s);
+		Log.d("Testing","press: "+d1+"\nbetween: "+d2);
+		Log.d("Testing","Side press: "+d1S+"\nbetween: "+d2S);
+		Log.d("Testing","non Side press: "+d1NS+"\nbetween: "+d2NS);
 	}
 
 
@@ -97,7 +120,7 @@ public class Testing {
 		String[] values = s.split(",")[1].split(";");
 		double res=0;
 		for(int i=0;i<(values.length-1)/2;i++){
-			res+=Double.parseDouble(values[i]);
+			res+=Double.parseDouble(values[i])-Double.parseDouble(values[i+(values.length-1)/2]);
 		}
 		return res/((values.length-1)/2);
 	}
@@ -116,5 +139,83 @@ public class Testing {
 			res+=Double.parseDouble(values[i]);
 		}
 		return res/((values.length-1)/2);
+	}
+	
+	
+	public static void Test(Context ctx) {
+		ArrayList<File> files = (ArrayList<File>) getListFiles();
+		String content;
+		int frr=0;
+		int n=0;
+		for (File file : files) {
+			if (!file.isDirectory()) {
+				n++;
+				content = readFromFile(file);
+				String username = getUserName(file.getName());
+				String pwd=getPwd(content);
+				//String username = getUserNameSIDE(file.getName());
+				Vector<Double> features = getFeatures(content);
+				//System.out.println(username);
+				//System.out.println(pwd);
+				boolean portrait = file.getName().contains("side") || file.getName().contains("SIDE");
+				if(!Authentication.userExists(username, ctx)){
+					Log.d("Testing","Register : "+username+";"+pwd);
+					Authentication.initialization(username, features.size(), pwd, ctx);
+				}
+				if(!Authentication.authenticate(features, username, pwd, ctx, portrait)){
+					Log.d("Testing","FAIL : "+username+";"+pwd);
+					frr++;
+				}
+			}
+		}	
+		Log.d("Testing","FRR : "+frr);
+		Log.d("Testing","logs : "+n);
+	}
+
+
+	private static Vector<Double> getFeatures(String content) {
+		Vector<Double> res = new Vector<Double>();
+		String features = content.split(",")[1];
+		String[] f = features.split(";");
+		for(int i=0 ; i < f.length ;i++){
+			if(i<(f.length-1)/2){
+				res.add(Double.parseDouble(f[i])-Double.parseDouble(f[i+(f.length-1)/2]));
+			} else {
+				res.add(Double.parseDouble(f[i]));
+			}
+		}
+		return res;
+	}
+
+
+	private static String getPwd(String content) {
+		return content.split(",")[0];
+	}
+
+
+
+	private static String getUserName(String name) {
+		String res =name;
+		/*if(name.contains("PIN")){
+			res=name.substring(3, name.length());
+		} */
+		if(res.contains("SIDE")){
+			res=res.split("SIDE")[0];
+		/*} else if (res.contains("side")){
+			res=res.split("side")[0];
+		*/} else {
+			res=res.split("0")[0];
+		}
+		return res;
+	}	
+	
+	public static String getUserNameSide(String name) {
+		String res =name;
+		if(name.contains("PIN")){
+			res=name.substring(3, name.length());
+		} 
+		res=res.split("0")[0];
+		
+		return res;
 	}
 }

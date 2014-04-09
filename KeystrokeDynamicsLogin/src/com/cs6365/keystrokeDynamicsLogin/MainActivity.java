@@ -1,6 +1,7 @@
 package com.cs6365.keystrokeDynamicsLogin;
 
 import com.cs6365.model.Authentication;
+import com.cs6365.model.Testing;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -34,7 +35,11 @@ public class MainActivity extends Activity {
 		btnLogPIN.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if(name.getText().toString().equals("")){
+				if(name.getText().toString().equals("tester")){//TODO del
+					Testing.getMean();
+					//Testing.Test(getApplicationContext());
+				}
+				else if(name.getText().toString().equals("")){
 					Toast.makeText(getApplicationContext(),
 							"Invalid username", Toast.LENGTH_SHORT)
 							.show();
@@ -48,8 +53,8 @@ public class MainActivity extends Activity {
 					Intent intent = new Intent(MainActivity.this,
 							LoginActivity.class);
 					intent.putExtra("name", name.getText().toString());
-					startActivity(intent);
-					finish();
+					startActivityForResult(intent, 0);
+					//finish();
 				}
 			}
 		});

@@ -10,8 +10,8 @@ import android.util.Log;
 
 public class Authentication {
 
-	private final static int thresholdPress = 1100;
-	private final static int thresholdTimeBetweenPress = 3000;
+	private final static int thresholdPress = 162;
+	private final static int thresholdTimeBetweenPress = 217;
 	private final static int hSize = 10;
 	private final static int hByteSize = 3200;
 	private final static double k = 1.;
@@ -72,10 +72,12 @@ public class Authentication {
 	 * @param userId
 	 * @param pwd
 	 * @param ctx
+	 * @param portrait 
 	 * @return
 	 */
 	public static boolean authenticate(Vector<Double> featureVector,
-			String userId, String pwd, Context ctx) {
+			String userId, String pwd, Context ctx, boolean portrait) {
+		//TODO take portrait into account
 		// Loading of the user's instruction table
 		int x;
 		BigInteger y;

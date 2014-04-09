@@ -12,6 +12,7 @@ import com.cs6365.model.Utils;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -147,8 +148,9 @@ public class LoginAlphaActivity extends Activity {
 					// featureVector.size(),pwd.getText().toString(),
 					// getApplicationContext());
 				} else {
+					boolean portrait = getResources().getConfiguration().orientation==Configuration.ORIENTATION_PORTRAIT;
 					if (Authentication.authenticate(featureVector, name, pwd
-							.getText().toString(), getApplicationContext())) {
+							.getText().toString(), getApplicationContext(),portrait)) {
 						Toast.makeText(getApplicationContext(), "success!",
 								Toast.LENGTH_SHORT).show();
 					} else {

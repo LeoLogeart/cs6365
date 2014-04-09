@@ -9,6 +9,7 @@ import java.util.Vector;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -134,14 +135,24 @@ public class LoginActivity extends Activity {
 					
 					//Authentication.initialization(name, featureVector.size(),pwd.getText().toString(), getApplicationContext());
 				} else {
-					if(Authentication.authenticate(featureVector, name, pwd.getText().toString(), getApplicationContext())){
+					getResources().getConfiguration();
+					boolean portrait = getResources().getConfiguration().orientation==Configuration.ORIENTATION_PORTRAIT;
+					if(Authentication.authenticate(featureVector, name, pwd.getText().toString(), getApplicationContext(),portrait)){
 						Toast.makeText(getApplicationContext(),
 								"success!", Toast.LENGTH_SHORT)
 								.show();
+						Intent intent = new Intent(LoginActivity.this,
+								MainActivity.class);
+						startActivity(intent);
+						finishActivity(0);
 					} else {
 						Toast.makeText(getApplicationContext(),
 								"failure", Toast.LENGTH_SHORT)
 								.show();
+						pwd.setText("");
+						lastDown=0;
+						pressTime = new ArrayList<Long>();
+						timeBetweenPress = new ArrayList<Long>();
 					}
 				}
 			}
