@@ -10,8 +10,8 @@ import android.util.Log;
 
 public class Authentication {
 
-	private final static int thresholdPress = 162;
-	private final static int thresholdTimeBetweenPress = 217;
+	private final static int thresholdPress = 167;
+	private final static int thresholdTimeBetweenPress = 255;
 	private final static int hSize = 10;
 	private final static int hByteSize = 3200;
 	private final static double k = 1.;
@@ -170,7 +170,8 @@ public class Authentication {
 			int x2 = x1 + 1;
 			BigInteger y1;
 			BigInteger y2;
-			if (hFile.getSize() > hSize) {
+			if (hFile.getSize() == hSize) {
+				Log.i("features","yay");
 				double mu = meanValues.get(i);
 				double sigma = deviations.get(i);
 				if (i == (featureVector.size() - 1) / 2) {
@@ -190,6 +191,7 @@ public class Authentication {
 					y2 = Utils.valueOfPolynomial(x2, polynomial);
 				}
 			} else {
+				Log.i("features","nay "+hFile.getSize());
 				y1 = Utils.valueOfPolynomial(x1, polynomial);
 				y2 = Utils.valueOfPolynomial(x2, polynomial);
 			}
@@ -201,7 +203,7 @@ public class Authentication {
 			newBetas.add(beta);
 		}
 		Log.d("Features","distinguishing features : "+nbDistFeat+", features :"+m);// TEST
-		double d =nbDistFeat/m;// TEST
+		double d =((double)nbDistFeat)/((double)m);// TEST
 		Log.d("Features","percentages: "+d); // TEST
 		InstructionTable newTable = new InstructionTable(newAlphas, newBetas, q);
 		storeInstructionTable(newTable, userId, ctx);

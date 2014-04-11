@@ -56,18 +56,19 @@ public class HistoryFile {
 	public Vector<Double> computeDeviations(){
 		Vector<Double> means = computeMeanValues();
 		Vector<Double> deviations = new Vector<Double>();
-		
-		for (Vector<Double> vector:featureVectors){
-			int count = 0;
-			double deviation = 0.;
-			for (int i=0;i<vector.size();i++){
+		int numFeatures = 0;
+		int count = 0;
+		double deviation = 0.;
+		if(featureVectors.size()!=0){
+			numFeatures=featureVectors.get(0).size();
+		}
+		for(int i=0;i<numFeatures;i++){
+			for (Vector<Double> vector:featureVectors){
 				Double d = vector.get(i);
-				if (d!=-1.){
-					count++;
-					deviation += Math.pow(d-means.get(i),2);
-				}
+				count++;
+				deviation += Math.pow(d-means.get(i),2);
 			}
-			deviation = Math.sqrt(deviation/count);
+			deviation = Math.sqrt(deviation/((double)count));
 			deviations.add(deviation);
 		}
 		return deviations;

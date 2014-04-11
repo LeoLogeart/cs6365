@@ -36,8 +36,8 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				if(name.getText().toString().equals("tester")){//TODO del
-					Testing.getMean();
-					//Testing.Test(getApplicationContext());
+					//Testing.getMean();
+					Testing.Test(getApplicationContext());
 				}
 				else if(name.getText().toString().equals("")){
 					Toast.makeText(getApplicationContext(),
