@@ -163,6 +163,7 @@ public class Authentication {
 		Vector<BigInteger> newAlphas = new Vector<BigInteger>();
 		Vector<BigInteger> newBetas = new Vector<BigInteger>();
 		threshold = thresholdTimeBetweenPress;
+		int nbDistFeat=0;// TEST
 		for (int i = 0; i < m; i++) {
 			// Computation of the new values for alpha and beta
 			int x1 = 2 * (i + 1);
@@ -176,6 +177,7 @@ public class Authentication {
 					threshold = thresholdPress;
 				}
 				if (Math.abs(mu - threshold) > k * sigma) {
+					nbDistFeat++;// TEST
 					if (mu < threshold) {
 						y1 = Utils.valueOfPolynomial(x1, polynomial);
 						y2 = Utils.random(q);
@@ -198,6 +200,9 @@ public class Authentication {
 			newAlphas.add(alpha);
 			newBetas.add(beta);
 		}
+		Log.d("Features","distinguishing features : "+nbDistFeat+", features :"+m);// TEST
+		double d =nbDistFeat/m;// TEST
+		Log.d("Features","percentages: "+d); // TEST
 		InstructionTable newTable = new InstructionTable(newAlphas, newBetas, q);
 		storeInstructionTable(newTable, userId, ctx);
 		return true;

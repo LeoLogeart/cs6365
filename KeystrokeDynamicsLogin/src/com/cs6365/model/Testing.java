@@ -81,12 +81,45 @@ public class Testing {
 		double meanBetweenS=0;
 		double meanPressNS=0;
 		double meanBetweenNS=0;
+		double meanPressPS=0;
+		double meanBetweenPS=0;
+		double meanPressPNS=0;
+		double meanBetweenPNS=0;
+		double meanPressNPS=0;
+		double meanBetweenNPS=0;
+		double meanPressNPNS=0;
+		double meanBetweenNPNS=0;
+		double ps=0.0;
+		double nps=0.0;
+		double npns=0.0;
+		double pns=0.0;
 		String content;
 		for (File file : files) {
 			if (!file.isDirectory()) {
 				content = readFromFile(file);
 				meanPress+=getMeanPress(content);
 				meanBetween+=getMeanBetween(content);
+				if(file.getName().contains("PIN")){
+					if(file.getName().contains("side")||file.getName().contains("SIDE")){
+						ps+=1;
+						meanPressPS+=getMeanPress(content);
+						meanBetweenPS+=getMeanBetween(content);
+					} else {
+						pns+=1;
+						meanPressPNS+=getMeanPress(content);
+						meanBetweenPNS+=getMeanBetween(content);
+					}
+				} else {
+					if(file.getName().contains("side")||file.getName().contains("SIDE")){
+						nps+=1;
+						meanPressNPS+=getMeanPress(content);
+						meanBetweenNPS+=getMeanBetween(content);
+					} else {
+						npns+=1;
+						meanPressNPNS+=getMeanPress(content);
+						meanBetweenNPNS+=getMeanBetween(content);
+					}
+				}
 				if(file.getName().contains("side")||file.getName().contains("SIDE")){
 					s+=1;
 					meanPressS+=getMeanPress(content);
@@ -103,9 +136,21 @@ public class Testing {
 		double d2S=meanBetweenS/s;
 		double d1NS=meanPressNS/(files.size()-s);
 		double d2NS=meanBetweenNS/(files.size()-s);
+		double d1PS=meanPressPS/ps;
+		double d2PS=meanBetweenPS/ps;
+		double d1PNS=meanPressPNS/pns;
+		double d2PNS=meanBetweenPNS/pns;
+		double d1NPS=meanPressNPS/nps;
+		double d2NPS=meanBetweenNPS/nps;
+		double d1NPNS=meanPressNPNS/npns;
+		double d2NPNS=meanBetweenNPNS/npns;
 		Log.d("Testing","press: "+d1+"\nbetween: "+d2);
 		Log.d("Testing","Side press: "+d1S+"\nbetween: "+d2S);
 		Log.d("Testing","non Side press: "+d1NS+"\nbetween: "+d2NS);
+		Log.d("Testing","ps press: "+d1PS+"\nbetween: "+d2PS);
+		Log.d("Testing","pns press: "+d1PNS+"\nbetween: "+d2PNS);
+		Log.d("Testing","nps press: "+d1NPS+"\nbetween: "+d2NPS);
+		Log.d("Testing","npns press: "+d1NPNS+"\nbetween: "+d2NPNS);
 	}
 
 
