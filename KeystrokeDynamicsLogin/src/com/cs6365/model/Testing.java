@@ -57,7 +57,7 @@ public class Testing {
 	 */
 	public static List<File> getListFiles() {
 		File root = android.os.Environment.getExternalStorageDirectory();
-		File parentDir = new File(root.getAbsolutePath() + "/KeystrokeDynamics");
+		File parentDir = new File(root.getAbsolutePath() + "/PKeystrokeDynamics");
 		ArrayList<File> inFiles = new ArrayList<File>();
 		File[] files = parentDir.listFiles();
 		for (File file : files) {
@@ -202,6 +202,7 @@ public class Testing {
 				Vector<Double> features = getFeatures(content);
 				//System.out.println(username);
 				//System.out.println(pwd);
+				Log.d("Testing","+++++++++++++++++++++");
 				boolean portrait = file.getName().contains("side") || file.getName().contains("SIDE");
 				if(!Authentication.userExists(username, ctx)){
 					Log.d("Testing","Register : "+username+";"+pwd);

@@ -121,6 +121,36 @@ public class Utils {
 			result = result.add(yi.multiply(lambdai));
 		}
 		return result.mod(q);
+		/*BigDecimal result = BigDecimal.ZERO;
+		int xi, xj;
+		for (int i = 0; i < x.size(); i++) {
+			xi = x.get(i);
+			BigDecimal lambdai = BigDecimal.ONE;
+			for (int j = 0; j < x.size(); j++) {
+				if (j != i) {
+					xj = x.get(j);
+					lambdai = lambdai.multiply(new BigDecimal(BigInteger.valueOf(xj)));
+				}
+			}
+			BigInteger div = BigInteger.ONE;
+			for (int j = 0; j < x.size(); j++) {
+				if (j != i) {
+					xj = x.get(j);
+					BigDecimal tmp=lambdai;
+					try{
+					lambdai = lambdai.divide(BigDecimal.valueOf(xj - xi),6,RoundingMode.HALF_UP);
+					if(!lambdai.multiply(new BigDecimal(BigInteger.valueOf(xj - xi))).equals(tmp)){
+						Log.e("interpolate","bad division :"+tmp.toString()+" != "+lambdai.multiply(new BigDecimal(BigInteger.valueOf(xj - xi))).toString());
+					}
+					} catch (ArithmeticException e){
+						Log.e("Arithmetic","lambdai "+lambdai.toPlainString()+"  "+(xj - xi));
+					}
+				}
+			}
+			BigDecimal yi = new BigDecimal( y.get(i));
+			result = result.add(yi.multiply(lambdai));
+		}
+		return result.toBigInteger().mod(q);*/
 	}
 
 	/**
@@ -236,13 +266,13 @@ public class Utils {
 			fos = ctx.openFileOutput(path, Context.MODE_PRIVATE);
 			fos.write(bytes);
 			fos.close();
-			Log.d("writeToFile", path);
+			//Log.d("writeToFile", path);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Log.d("writeToFile","size "+bytes.length);
+		//Log.d("writeToFile","size "+bytes.length);
 	}
 	
 	/**

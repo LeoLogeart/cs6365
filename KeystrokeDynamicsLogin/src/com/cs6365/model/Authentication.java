@@ -48,6 +48,7 @@ public class Authentication {
 			alphas.add(alpha);
 			betas.add(beta);
 		}
+		Log.d("Init",q.toString());
 		InstructionTable table = new InstructionTable(alphas, betas, q);
 		storeInstructionTable(table, userId, ctx);
 		// Generation of an empty history file
@@ -79,6 +80,8 @@ public class Authentication {
 			String userId, String pwd, Context ctx, boolean portrait) {
 		//TODO take portrait into account
 		// Loading of the user's instruction table
+		Log.d("Authenticate","------------------");
+		Log.d("Authenticate", userId+" "+pwd);
 		int x;
 		BigInteger y;
 		InstructionTable table = loadInstructionTable(userId, ctx);
@@ -98,7 +101,7 @@ public class Authentication {
 				BigInteger hashInv = Utils.computeSha256(x, pwd).modInverse(q);
 				y = alphas.get(ind).multiply(hashInv).mod(q);
 			} else {
-				x = 2 * (ind + 1) + 1;
+				x = 2 * (ind ) + 1;//$ind+1
 				BigInteger hashInv = Utils.computeSha256(x, pwd).modInverse(q);
 				y = betas.get(ind).multiply(hashInv).mod(q);
 			}
@@ -107,6 +110,7 @@ public class Authentication {
 		}
 		// Interpolation to get the hardened password
 		BigInteger hpwd = Utils.interpolate(xs, ys, q);
+		Log.d("hpwd","hpwd  : "+hpwd.toString());
 		// Attempt to decrypt the file
 		byte[] history = Utils.readFrom("history" + userId, ctx);
 		history = Utils.decrypt(history, hpwd.toString().toCharArray());
@@ -164,14 +168,15 @@ public class Authentication {
 		Vector<BigInteger> newBetas = new Vector<BigInteger>();
 		threshold = thresholdTimeBetweenPress;
 		int nbDistFeat=0;// TEST
+		Log.i("features","attempt "+hFile.getSize());
 		for (int i = 0; i < m; i++) {
 			// Computation of the new values for alpha and beta
 			int x1 = 2 * (i + 1);
-			int x2 = x1 + 1;
+			int x2 = x1 - 1;//$+
 			BigInteger y1;
 			BigInteger y2;
 			if (hFile.getSize() == hSize) {
-				Log.i("features","yay");
+				//Log.i("features","yay");
 				double mu = meanValues.get(i);
 				double sigma = deviations.get(i);
 				if (i == (featureVector.size() - 1) / 2) {
@@ -191,7 +196,7 @@ public class Authentication {
 					y2 = Utils.valueOfPolynomial(x2, polynomial);
 				}
 			} else {
-				Log.i("features","nay "+hFile.getSize());
+				//Log.i("features","nay "+hFile.getSize());
 				y1 = Utils.valueOfPolynomial(x1, polynomial);
 				y2 = Utils.valueOfPolynomial(x2, polynomial);
 			}
