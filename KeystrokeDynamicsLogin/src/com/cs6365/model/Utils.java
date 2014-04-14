@@ -104,6 +104,8 @@ public class Utils {
 		int xi, xj;
 		for (int i = 0; i < x.size(); i++) {
 			xi = x.get(i);
+			//System.out.println("x"+i+" : "+xi);
+			//System.out.println("y"+i+" : "+y.get(i));
 			BigInteger lambdai = BigInteger.ONE;
 			for (int j = 0; j < x.size(); j++) {
 				if (j != i) {
@@ -114,7 +116,11 @@ public class Utils {
 			for (int j = 0; j < x.size(); j++) {
 				if (j != i) {
 					xj = x.get(j);
+					BigInteger tmp=lambdai;
 					lambdai = lambdai.divide(BigInteger.valueOf(xj - xi));
+					if(!lambdai.multiply(BigInteger.valueOf(xj - xi)).equals(tmp)){
+						Log.e("interpolate","bad division :"+tmp.toString()+" != "+lambdai.multiply(BigInteger.valueOf(xj - xi)).toString());
+					}
 				}
 			}
 			BigInteger yi = y.get(i);

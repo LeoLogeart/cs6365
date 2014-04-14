@@ -212,6 +212,7 @@ public class Testing {
 					Log.d("Testing","FAIL : "+username+";"+pwd);
 					frr++;
 				}
+				
 			}
 		}	
 		Log.d("Testing","FRR : "+frr);

@@ -31,20 +31,24 @@ public class Authentication {
 		BigInteger q = Utils.generatePrimeNumber(160);
 		BigInteger hpwd = Utils.random(q);
 		Vector<BigInteger> polynomial = Utils
-				.generateRandomPolynomial(m - 1, q);
+				.generateRandomPolynomial(m - 2, q);
 		polynomial.add(0, hpwd);
 		Vector<BigInteger> alphas = new Vector<BigInteger>();
 		Vector<BigInteger> betas = new Vector<BigInteger>();
 		for (int i = 0; i < m; i++) {
 			// Computation of initial values for alpha and beta
-			int x1 = 2 * (i + 1);
-			int x2 = x1 + 1;
+			//int x1 = 2 * (i + 1);
+			//int x2 = x1 + 1;
+			int x1 = i + 1;
+			int x2 = i + 1;
 			BigInteger y1 = Utils.valueOfPolynomial(x1, polynomial);
 			BigInteger y2 = Utils.valueOfPolynomial(x2, polynomial);
 			BigInteger hash1 = Utils.computeSha256(x1, pwd);
 			BigInteger hash2 = Utils.computeSha256(x2, pwd);
 			BigInteger alpha = y1.multiply(hash1).mod(q);
 			BigInteger beta = y2.multiply(hash2).mod(q);
+			//System.out.println("x"+i+" : "+(i+1));
+			//System.out.println("y"+i+" : "+y1+" / "+y2);
 			alphas.add(alpha);
 			betas.add(beta);
 		}
@@ -91,23 +95,29 @@ public class Authentication {
 		Vector<Integer> xs = new Vector<Integer>();
 		Vector<BigInteger> ys = new Vector<BigInteger>();
 		int threshold = thresholdTimeBetweenPress;
+		StringBuilder testing = new StringBuilder();
 		for (int ind = 0; ind < featureVector.size(); ind++) {
 			if (ind == (featureVector.size() - 1) / 2) {
 				threshold = thresholdPress;
 			}
 			Double feature = featureVector.get(ind);
 			if (feature < threshold) {
-				x = 2 * (ind + 1);
+				testing.append(ind+": Inf, ");
+				//x = 2 * (ind + 1);
+				x=ind + 1;
 				BigInteger hashInv = Utils.computeSha256(x, pwd).modInverse(q);
 				y = alphas.get(ind).multiply(hashInv).mod(q);
 			} else {
-				x = 2 * (ind ) + 1;//$ind+1
+				//x = 2 * (ind ) + 1;//$ind+1
+				testing.append(ind+": sup, ");
+				x=ind + 1;
 				BigInteger hashInv = Utils.computeSha256(x, pwd).modInverse(q);
 				y = betas.get(ind).multiply(hashInv).mod(q);
 			}
 			xs.add(x);
 			ys.add(y);
 		}
+		Log.d("features",testing.toString());
 		// Interpolation to get the hardened password
 		BigInteger hpwd = Utils.interpolate(xs, ys, q);
 		Log.d("hpwd","hpwd  : "+hpwd.toString());
@@ -162,17 +172,20 @@ public class Authentication {
 		Vector<Double> deviations = hFile.computeDeviations();
 		int m = featureVector.size();
 		Vector<BigInteger> polynomial = Utils
-				.generateRandomPolynomial(m - 1, q);
+				.generateRandomPolynomial(m - 2, q);
 		polynomial.add(0, hpwd);
 		Vector<BigInteger> newAlphas = new Vector<BigInteger>();
 		Vector<BigInteger> newBetas = new Vector<BigInteger>();
+		testing = new StringBuilder();
 		threshold = thresholdTimeBetweenPress;
 		int nbDistFeat=0;// TEST
 		Log.i("features","attempt "+hFile.getSize());
 		for (int i = 0; i < m; i++) {
 			// Computation of the new values for alpha and beta
-			int x1 = 2 * (i + 1);
-			int x2 = x1 - 1;//$+
+			//int x1 = 2 * (i + 1);
+			//int x2 = x1 - 1;
+			int x1 = i+1;
+			int x2 = i+1;
 			BigInteger y1;
 			BigInteger y2;
 			if (hFile.getSize() == hSize) {
@@ -185,9 +198,11 @@ public class Authentication {
 				if (Math.abs(mu - threshold) > k * sigma) {
 					nbDistFeat++;// TEST
 					if (mu < threshold) {
+						testing.append(i+": inf, ");
 						y1 = Utils.valueOfPolynomial(x1, polynomial);
 						y2 = Utils.random(q);
 					} else {
+						testing.append(i+": sup, ");
 						y1 = Utils.random(q);
 						y2 = Utils.valueOfPolynomial(x2, polynomial);
 					}
@@ -207,6 +222,7 @@ public class Authentication {
 			newAlphas.add(alpha);
 			newBetas.add(beta);
 		}
+		Log.d("Features",testing.toString());
 		Log.d("Features","distinguishing features : "+nbDistFeat+", features :"+m);// TEST
 		double d =((double)nbDistFeat)/((double)m);// TEST
 		Log.d("Features","percentages: "+d); // TEST
