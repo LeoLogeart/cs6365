@@ -3,6 +3,7 @@ package com.cs6365.model;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.util.Map;
 import java.util.Vector;
 
 import android.content.Context;
@@ -10,12 +11,20 @@ import android.util.Log;
 
 public class Authentication {
 
-	private final static int thresholdPress = 167;
-	private final static int thresholdTimeBetweenPress = 255;
+	private final static int thresholdTimeBetweenPressPinLandscape = 90;//147;
+	private final static int thresholdTimeBetweenPressPin = 230;
+	private final static int thresholdTimeBetweenPressLandscape = 180;//227;
+	private final static int thresholdTimeBetweenPress = 418;
+	private final static int thresholdPress = 200;
 	private final static int hSize = 10;
 	private final static int hByteSize = 3200;
-	private final static double k = 1.;
+	private final static double k = 0.1;
 
+	public static int numFeat;
+	public static Map<String,Integer> userDist;
+	public static Map<String,Integer> userNum;
+	public static int auth;
+	
 	/**
 	 * Initialization of the data structures : Create empty history file, and
 	 * initial instruction table
@@ -67,6 +76,8 @@ public class Authentication {
 		byte[] history = Utils.pad(emptyBytes, hByteSize);
 		byte[] cipher = Utils.encrypt(history, hpwd.toString().toCharArray());
 		Utils.writeToFile(cipher, "history" + userId, ctx);
+		userNum.put(userId, 0);
+		userDist.put(userId, 0);
 	}
 
 	/**
@@ -83,6 +94,10 @@ public class Authentication {
 	public static boolean authenticate(Vector<Double> featureVector,
 			String userId, String pwd, Context ctx, boolean portrait) {
 		//TODO take portrait into account
+		///////////
+		boolean pin=userId.contains("PIN");
+		
+		///////////
 		// Loading of the user's instruction table
 		Log.d("Authenticate","------------------");
 		Log.d("Authenticate", userId+" "+pwd);
@@ -94,7 +109,17 @@ public class Authentication {
 		BigInteger q = table.getQ();
 		Vector<Integer> xs = new Vector<Integer>();
 		Vector<BigInteger> ys = new Vector<BigInteger>();
-		int threshold = thresholdTimeBetweenPress;
+		int threshold;
+		if(pin && portrait){
+			threshold = thresholdTimeBetweenPressPin;
+		} else if (pin) {
+			threshold = thresholdTimeBetweenPressPinLandscape;
+		} else if (portrait){
+			threshold = thresholdTimeBetweenPress;
+		} else {
+			threshold = thresholdTimeBetweenPressLandscape;
+		}
+		
 		StringBuilder testing = new StringBuilder();
 		for (int ind = 0; ind < featureVector.size(); ind++) {
 			if (ind == (featureVector.size() - 1) / 2) {
@@ -177,7 +202,15 @@ public class Authentication {
 		Vector<BigInteger> newAlphas = new Vector<BigInteger>();
 		Vector<BigInteger> newBetas = new Vector<BigInteger>();
 		testing = new StringBuilder();
-		threshold = thresholdTimeBetweenPress;
+		if(pin && portrait){
+			threshold = thresholdTimeBetweenPressPin;
+		} else if (pin) {
+			threshold = thresholdTimeBetweenPressPinLandscape;
+		} else if (portrait){
+			threshold = thresholdTimeBetweenPress;
+		} else {
+			threshold = thresholdTimeBetweenPressLandscape;
+		}
 		int nbDistFeat=0;// TEST
 		Log.i("features","attempt "+hFile.getSize());
 		for (int i = 0; i < m; i++) {
@@ -188,6 +221,17 @@ public class Authentication {
 			int x2 = i+1;
 			BigInteger y1;
 			BigInteger y2;
+			if(hFile.getSize() == 9){//TEST
+
+				if (i == (featureVector.size() - 1) / 2) {
+					threshold = thresholdPress;
+				}
+				double mu = meanValues.get(i);
+				double sigma = deviations.get(i);
+				if (Math.abs(mu - threshold) > k * sigma) {
+					nbDistFeat++;// TEST
+				}
+			}
 			if (hFile.getSize() == hSize) {
 				//Log.i("features","yay");
 				double mu = meanValues.get(i);
@@ -196,7 +240,7 @@ public class Authentication {
 					threshold = thresholdPress;
 				}
 				if (Math.abs(mu - threshold) > k * sigma) {
-					nbDistFeat++;// TEST
+					//nbDistFeat++;// TEST
 					if (mu < threshold) {
 						testing.append(i+": inf, ");
 						y1 = Utils.valueOfPolynomial(x1, polynomial);
@@ -223,7 +267,15 @@ public class Authentication {
 			newBetas.add(beta);
 		}
 		Log.d("Features",testing.toString());
+		if(hFile.getSize() == 9){
 		Log.d("Features","distinguishing features : "+nbDistFeat+", features :"+m);// TEST
+		int nu= userNum.get(userId);
+		userNum.put(userId, nu+1);
+		int dis=userDist.get(userId);
+		userDist.put(userId, dis+nbDistFeat);
+		numFeat+=nbDistFeat;//TEST
+		}
+		auth++;//TEST
 		double d =((double)nbDistFeat)/((double)m);// TEST
 		Log.d("Features","percentages: "+d); // TEST
 		InstructionTable newTable = new InstructionTable(newAlphas, newBetas, q);

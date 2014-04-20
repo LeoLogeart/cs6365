@@ -47,7 +47,7 @@ public class HistoryFile {
 			for (Vector<Double> vector:featureVectors){
 				mean += vector.get(i);
 			}
-			mean=mean/numFeatures;
+			mean=mean/((double)featureVectors.size());
 			means.add(mean);
 		}
 		return means;

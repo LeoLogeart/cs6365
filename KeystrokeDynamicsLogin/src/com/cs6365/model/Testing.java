@@ -8,7 +8,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Vector;
 
 import android.content.Context;
@@ -190,6 +194,10 @@ public class Testing {
 	public static void Test(Context ctx) {
 		ArrayList<File> files = (ArrayList<File>) getListFiles();
 		String content;
+		Authentication.numFeat=0;
+		Authentication.auth=0;
+		Authentication.userDist=new HashMap<String, Integer>();
+		Authentication.userNum=new HashMap<String, Integer>();
 		int frr=0;
 		int n=0;
 		for (File file : files) {
@@ -203,20 +211,38 @@ public class Testing {
 				//System.out.println(username);
 				//System.out.println(pwd);
 				Log.d("Testing","+++++++++++++++++++++");
-				boolean portrait = file.getName().contains("side") || file.getName().contains("SIDE");
+				boolean landscape = file.getName().contains("side") || file.getName().contains("SIDE");
 				if(!Authentication.userExists(username, ctx)){
 					Log.d("Testing","Register : "+username+";"+pwd);
 					Authentication.initialization(username, features.size(), pwd, ctx);
 				}
-				if(!Authentication.authenticate(features, username, pwd, ctx, portrait)){
+				if(!Authentication.authenticate(features, username, pwd, ctx, !landscape)){
 					Log.d("Testing","FAIL : "+username+";"+pwd);
+					Log.d("Testing","FAIL : "+file.getName());
 					frr++;
 				}
 				
 			}
 		}	
+		
+		Iterator<Entry<String,Integer>> it = Authentication.userDist.entrySet().iterator();
+		int total=0;
+		double totDist=0;
+	    while (it.hasNext()) {
+	        Map.Entry<String,Integer> pairs = (Map.Entry<String,Integer>)it.next();
+	        totDist+=((double)pairs.getValue())/((double)Authentication.userNum.get(pairs.getKey()));
+	        total++;
+	    }
+	    double ok=totDist/((double) total);
+		Log.d("Testing","test : "+totDist+" "+total);
+		Log.d("Testing","features per acc : "+ok);
+		Log.d("Testing","mean dist feat : "+Authentication.numFeat);
+		Log.d("Testing","mean dist feat : "+Authentication.numFeat);
+		Log.d("Testing","successful auth : "+Authentication.auth);
+		double mf = ((double)Authentication.numFeat)/((double)n);
 		Log.d("Testing","FRR : "+frr);
 		Log.d("Testing","logs : "+n);
+		Log.d("Testing","mean dist feat : "+mf);
 	}
 
 
@@ -246,13 +272,14 @@ public class Testing {
 		/*if(name.contains("PIN")){
 			res=name.substring(3, name.length());
 		} */
-		if(res.contains("SIDE")){
+		/*if(res.contains("SIDE")){
 			res=res.split("SIDE")[0];
 		/*} else if (res.contains("side")){
 			res=res.split("side")[0];
-		*/} else {
+		} else {
 			res=res.split("0")[0];
-		}
+		}*/
+		res=res.split("0")[0];
 		return res;
 	}	
 	
