@@ -1,15 +1,23 @@
 package com.cs6365.model;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.Key;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.Vector;
@@ -104,8 +112,8 @@ public class Utils {
 		int xi, xj;
 		for (int i = 0; i < x.size(); i++) {
 			xi = x.get(i);
-			//System.out.println("x"+i+" : "+xi);
-			//System.out.println("y"+i+" : "+y.get(i));
+			// System.out.println("x"+i+" : "+xi);
+			// System.out.println("y"+i+" : "+y.get(i));
 			BigInteger lambdai = BigInteger.ONE;
 			for (int j = 0; j < x.size(); j++) {
 				if (j != i) {
@@ -116,10 +124,17 @@ public class Utils {
 			for (int j = 0; j < x.size(); j++) {
 				if (j != i) {
 					xj = x.get(j);
-					BigInteger tmp=lambdai;
+					BigInteger tmp = lambdai;
 					lambdai = lambdai.divide(BigInteger.valueOf(xj - xi));
-					if(!lambdai.multiply(BigInteger.valueOf(xj - xi)).equals(tmp)){
-						Log.e("interpolate","bad division :"+tmp.toString()+" != "+lambdai.multiply(BigInteger.valueOf(xj - xi)).toString());
+					if (!lambdai.multiply(BigInteger.valueOf(xj - xi)).equals(
+							tmp)) {
+						Log.e("interpolate",
+								"bad division :"
+										+ tmp.toString()
+										+ " != "
+										+ lambdai.multiply(
+												BigInteger.valueOf(xj - xi))
+												.toString());
 					}
 				}
 			}
@@ -127,36 +142,24 @@ public class Utils {
 			result = result.add(yi.multiply(lambdai));
 		}
 		return result.mod(q);
-		/*BigDecimal result = BigDecimal.ZERO;
-		int xi, xj;
-		for (int i = 0; i < x.size(); i++) {
-			xi = x.get(i);
-			BigDecimal lambdai = BigDecimal.ONE;
-			for (int j = 0; j < x.size(); j++) {
-				if (j != i) {
-					xj = x.get(j);
-					lambdai = lambdai.multiply(new BigDecimal(BigInteger.valueOf(xj)));
-				}
-			}
-			BigInteger div = BigInteger.ONE;
-			for (int j = 0; j < x.size(); j++) {
-				if (j != i) {
-					xj = x.get(j);
-					BigDecimal tmp=lambdai;
-					try{
-					lambdai = lambdai.divide(BigDecimal.valueOf(xj - xi),6,RoundingMode.HALF_UP);
-					if(!lambdai.multiply(new BigDecimal(BigInteger.valueOf(xj - xi))).equals(tmp)){
-						Log.e("interpolate","bad division :"+tmp.toString()+" != "+lambdai.multiply(new BigDecimal(BigInteger.valueOf(xj - xi))).toString());
-					}
-					} catch (ArithmeticException e){
-						Log.e("Arithmetic","lambdai "+lambdai.toPlainString()+"  "+(xj - xi));
-					}
-				}
-			}
-			BigDecimal yi = new BigDecimal( y.get(i));
-			result = result.add(yi.multiply(lambdai));
-		}
-		return result.toBigInteger().mod(q);*/
+		/*
+		 * BigDecimal result = BigDecimal.ZERO; int xi, xj; for (int i = 0; i <
+		 * x.size(); i++) { xi = x.get(i); BigDecimal lambdai = BigDecimal.ONE;
+		 * for (int j = 0; j < x.size(); j++) { if (j != i) { xj = x.get(j);
+		 * lambdai = lambdai.multiply(new BigDecimal(BigInteger.valueOf(xj))); }
+		 * } BigInteger div = BigInteger.ONE; for (int j = 0; j < x.size(); j++)
+		 * { if (j != i) { xj = x.get(j); BigDecimal tmp=lambdai; try{ lambdai =
+		 * lambdai.divide(BigDecimal.valueOf(xj - xi),6,RoundingMode.HALF_UP);
+		 * if(!lambdai.multiply(new BigDecimal(BigInteger.valueOf(xj -
+		 * xi))).equals(tmp)){
+		 * Log.e("interpolate","bad division :"+tmp.toString(
+		 * )+" != "+lambdai.multiply(new BigDecimal(BigInteger.valueOf(xj -
+		 * xi))).toString()); } } catch (ArithmeticException e){
+		 * Log.e("Arithmetic","lambdai "+lambdai.toPlainString()+"  "+(xj -
+		 * xi)); } } } BigDecimal yi = new BigDecimal( y.get(i)); result =
+		 * result.add(yi.multiply(lambdai)); } return
+		 * result.toBigInteger().mod(q);
+		 */
 	}
 
 	/**
@@ -182,6 +185,7 @@ public class Utils {
 		BigInteger result = new BigInteger(hash);
 		return result;
 	}
+
 
 	/**
 	 * Generates a padding of the given size
@@ -225,7 +229,7 @@ public class Utils {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		//System.out.println("\n\n\nKEY : "+(new String(key)));
+		// System.out.println("\n\n\nKEY : "+(new String(key)));
 		return ciphertext;
 	}
 
@@ -254,11 +258,10 @@ public class Utils {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		//System.out.println("\n\n\nKEY : "+(new String(key)));
+		// System.out.println("\n\n\nKEY : "+(new String(key)));
 		return deciphertext;
 	}
-    
-    
+
 	/**
 	 * Writes bytes to the file described by the path path
 	 * 
@@ -272,15 +275,15 @@ public class Utils {
 			fos = ctx.openFileOutput(path, Context.MODE_PRIVATE);
 			fos.write(bytes);
 			fos.close();
-			//Log.d("writeToFile", path);
+			// Log.d("writeToFile", path);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		//Log.d("writeToFile","size "+bytes.length);
+		// Log.d("writeToFile","size "+bytes.length);
 	}
-	
+
 	/**
 	 * Returns the bytes contained in file located at path.
 	 * 
@@ -296,17 +299,20 @@ public class Utils {
 		try {
 			fis = ctx.openFileInput(path);
 			int val = fis.read(buffer);
-			
+
 			if (val == 4096) {
-				Log.e("readFrom","file too big "+val);
+				Log.e("readFrom", "file too big " + val);
 			} else {
-				Log.d("readFrom","size "+val);
-				res=Arrays.copyOf(buffer, val);
+				Log.d("readFrom", "size " + val);
+				res = Arrays.copyOf(buffer, val);
 			}
-		} catch (IOException e) { e.printStackTrace(); }
-	  
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		return res;
 	}
+
 	/*
 	 * public static void testFile(String s, String path, Context ctx) {
 	 * FileOutputStream fos; try { fos = ctx.openFileOutput(path,
@@ -329,18 +335,12 @@ public class Utils {
 	 * @param path
 	 * @return
 	 */
-	/*public static byte[] readFile(String path) {
-		byte[] b = null;
-		try {
-			RandomAccessFile f = new RandomAccessFile(path, "r");
-			b = new byte[(int) f.length()];
-			f.read(b);
-			f.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return b;
-	}*/
+	/*
+	 * public static byte[] readFile(String path) { byte[] b = null; try {
+	 * RandomAccessFile f = new RandomAccessFile(path, "r"); b = new byte[(int)
+	 * f.length()]; f.read(b); f.close(); } catch (Exception e) {
+	 * e.printStackTrace(); } return b; }
+	 */
 
 	/**
 	 * Returns content of file path.
@@ -352,11 +352,12 @@ public class Utils {
 	public static String readFileString(String path, Context ctx) {
 		FileInputStream fis = null;
 		StringBuffer fileContent = new StringBuffer("");
+		Log.d("REEEEAAAD", path);
 		try {
 			fis = ctx.openFileInput(path);
 			byte[] buffer = new byte[1024];
 			int val = fis.read(buffer);
-			
+
 			while (val != -1) {
 				fileContent.append((new String(buffer)).substring(0, val));
 				val = fis.read(buffer);
@@ -366,34 +367,31 @@ public class Utils {
 		}
 		return fileContent.toString();
 	}
-	
 
 	/**
 	 * Checks if external storage is available for read and write
 	 * 
 	 * @return
 	 */
-	/*public boolean isExternalStorageWritable() {
-		String state = Environment.getExternalStorageState();
-		if (Environment.MEDIA_MOUNTED.equals(state)) {
-			return true;
-		}
-		return false;
-	}*/
+	/*
+	 * public boolean isExternalStorageWritable() { String state =
+	 * Environment.getExternalStorageState(); if
+	 * (Environment.MEDIA_MOUNTED.equals(state)) { return true; } return false;
+	 * }
+	 */
 
 	/**
 	 * Checks if external storage is available to at least read
 	 * 
 	 * @return
 	 */
-	/*public boolean isExternalStorageReadable() {
-		String state = Environment.getExternalStorageState();
-		if (Environment.MEDIA_MOUNTED.equals(state)
-				|| Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-			return true;
-		}
-		return false;
-	}*/
+	/*
+	 * public boolean isExternalStorageReadable() { String state =
+	 * Environment.getExternalStorageState(); if
+	 * (Environment.MEDIA_MOUNTED.equals(state) ||
+	 * Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) { return true; }
+	 * return false; }
+	 */
 
 	/**
 	 * Gets the File filename located in "keystrokeLogin"
@@ -401,19 +399,16 @@ public class Utils {
 	 * @param fileName
 	 * @return
 	 */
-	/*public File getFile(String fileName) {
-		File file = new File(
-				Environment.getExternalStoragePublicDirectory("keystrokeLogin"),
-				fileName);
-		if (!file.mkdirs()) {
-			Log.e("file", "Directory not created");
-		}
-		return file;
-	}*/
+	/*
+	 * public File getFile(String fileName) { File file = new File(
+	 * Environment.getExternalStoragePublicDirectory("keystrokeLogin"),
+	 * fileName); if (!file.mkdirs()) { Log.e("file", "Directory not created");
+	 * } return file; }
+	 */
 
 	/**
 	 * Writes the string value in the file named path inside the folder
-	 * KeystrokeDynamics
+	 * KeystrokeDynamicsLogin
 	 * 
 	 * @param path
 	 * @param value
@@ -423,7 +418,7 @@ public class Utils {
 		File root = android.os.Environment.getExternalStorageDirectory();
 		Log.d("writeTo", "\nExternal file system root: " + root);
 
-		File dir = new File(root.getAbsolutePath() + "/KeystrokeDynamics");
+		File dir = new File(root.getAbsolutePath() + "/KeystrokeDynamicsLogin");
 		dir.mkdirs();
 		File file = new File(dir, path);
 
@@ -445,31 +440,24 @@ public class Utils {
 		Log.d("writeTo", "\n\nFile written to " + file);
 	}
 
-	/**
-	 * Reads the file path under the folder KeystrokeDynamics
-	 * 
-	 * @param path
-	 */
-	/*public static String readFrom(String path) {
-		Log.d("writeTo", "read");
+	public static String readExtFileString(String path, Context ctx) {
+		String hashPath = sha256(path);
+		Log.d("ReadString", hashPath);
 		File root = android.os.Environment.getExternalStorageDirectory();
-		File dir = new File(root.getAbsolutePath() + "/KeystrokeDynamics");
-		dir.mkdirs();
-		File file = new File(dir, path);
+		File f = new File(root.getAbsolutePath() + "/KeystrokeDynamicsLogin/"
+				+ hashPath);
 		InputStream is = null;
 		try {
-			is = new FileInputStream(file);
+			is = new FileInputStream(f);
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
 		}
 		InputStreamReader isr = new InputStreamReader(is);
-		BufferedReader br = new BufferedReader(isr, 8192); // 2nd arg is buffer
-															// size
-
+		BufferedReader br = new BufferedReader(isr, 8192);
 		StringBuilder sb = new StringBuilder();
 		try {
-			String line = br.readLine() ;
-			while (line!=null) {
+			String line = br.readLine();
+			while (line != null) {
 				sb.append(line);
 				line = br.readLine();
 			}
@@ -479,10 +467,96 @@ public class Utils {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Log.d("writeTo", "\n\nThat is all");
 		return sb.toString();
-	}*/
+	}
+
+	public static void writeToExtFileString(String content, String path,
+			Context ctx) {
+		String hashPath = sha256(path);
+		Log.d("WriteString", hashPath);
+		writeTo(hashPath, content);
+	}
+
+	public static byte[] readFromExt(String path, Context ctx) {
+		String hashPath = sha256(path);
+		Log.d("ReadBytes", hashPath);
+		File root = android.os.Environment.getExternalStorageDirectory();
+		File f = new File(root.getAbsolutePath() + "/KeystrokeDynamicsLogin/"
+				+ hashPath);
+
+		FileInputStream fis = null;
+		byte[] buffer = new byte[4096];
+		byte[] res = null;
+		try {
+			fis = new FileInputStream(f);
+			int val = fis.read(buffer);
+
+			if (val == 4096) {
+				Log.e("readFrom", "file too big " + val);
+			} else {
+				Log.d("readFrom", "size " + val);
+				res = Arrays.copyOf(buffer, val);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			fis.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return res;
+	}
+
+	public static void writeToExtFile(byte[] cipher, String path, Context ctx) {
+		String hashPath = sha256(path);
+		Log.d("WriteBytes", hashPath);
+		File root = android.os.Environment.getExternalStorageDirectory();
+
+		File dir = new File(root.getAbsolutePath() + "/KeystrokeDynamicsLogin");
+		dir.mkdirs();
+		File file = new File(dir, hashPath);
+
+		BufferedOutputStream bos;
+		try {
+			bos = new BufferedOutputStream(new FileOutputStream(file));
+			bos.write(cipher);
+			bos.flush();
+			bos.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Reads the file path under the folder KeystrokeDynamics
+	 * 
+	 * @param path
+	 */
 
 
+	/**
+	 * Hashes a string using the simple sha256 algorithm
+	 * 
+	 * @param input
+	 * @return
+	 */
+	public static String sha256(String input) {
+		byte[] hash = null;
+		try {
+			MessageDigest digest = MessageDigest.getInstance("SHA-256");
+			hash = digest.digest(input.getBytes("UTF-8"));
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 
+		String normalized = Normalizer.normalize(hash.toString(), Form.NFD);
+		String result = normalized.replaceAll("[^A-Za-z0-9]", "");
+		return result;
+	}
 }

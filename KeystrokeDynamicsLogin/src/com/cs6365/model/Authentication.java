@@ -3,7 +3,6 @@ package com.cs6365.model;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
-import java.util.Map;
 import java.util.Vector;
 
 import android.content.Context;
@@ -11,19 +10,15 @@ import android.util.Log;
 
 public class Authentication {
 
-	private final static int thresholdTimeBetweenPressPinLandscape = 90;//147;
+	private final static int thresholdTimeBetweenPressPinLandscape = 90;
 	private final static int thresholdTimeBetweenPressPin = 230;
-	private final static int thresholdTimeBetweenPressLandscape = 180;//227;
+	private final static int thresholdTimeBetweenPressLandscape = 180;
 	private final static int thresholdTimeBetweenPress = 418;
 	private final static int thresholdPress = 200;
 	private final static int hSize = 10;
 	private final static int hByteSize = 3200;
 	private final static double k = 1.;
 
-	public static int numFeat;
-	public static Map<String,Integer> userDist;
-	public static Map<String,Integer> userNum;
-	public static int auth;
 	
 	/**
 	 * Initialization of the data structures : Create empty history file, and
@@ -46,8 +41,6 @@ public class Authentication {
 		Vector<BigInteger> betas = new Vector<BigInteger>();
 		for (int i = 0; i < m; i++) {
 			// Computation of initial values for alpha and beta
-			//int x1 = 2 * (i + 1);
-			//int x2 = x1 + 1;
 			int x1 = i + 1;
 			int x2 = i + 1;
 			BigInteger y1 = Utils.valueOfPolynomial(x1, polynomial);
@@ -56,8 +49,6 @@ public class Authentication {
 			BigInteger hash2 = Utils.computeSha256(x2, pwd);
 			BigInteger alpha = y1.multiply(hash1).mod(q);
 			BigInteger beta = y2.multiply(hash2).mod(q);
-			//System.out.println("x"+i+" : "+(i+1));
-			//System.out.println("y"+i+" : "+y1+" / "+y2);
 			alphas.add(alpha);
 			betas.add(beta);
 		}
@@ -76,8 +67,7 @@ public class Authentication {
 		byte[] history = Utils.pad(emptyBytes, hByteSize);
 		byte[] cipher = Utils.encrypt(history, hpwd.toString().toCharArray());
 		Utils.writeToFile(cipher, "history" + userId, ctx);
-		userNum.put(userId, 0);
-		userDist.put(userId, 0);
+		//Utils.writeToExtFile(cipher, "history" + userId, ctx);TODO
 	}
 
 	/**
@@ -93,12 +83,6 @@ public class Authentication {
 	 */
 	public static boolean authenticate(Vector<Double> featureVector,
 			String userId, String pwd, Context ctx, boolean portrait, boolean pin) {
-		//TODO take portrait and PIN into account
-		//TODO if input too large => return false
-		///////////
-		//boolean pin=userId.contains("PIN");
-		
-		///////////
 		// Loading of the user's instruction table
 		Log.d("Authenticate","------------------");
 		Log.d("Authenticate", userId+" "+pwd);
@@ -132,12 +116,10 @@ public class Authentication {
 			Double feature = featureVector.get(ind);
 			if (feature < threshold) {
 				testing.append(ind+": Inf, ");
-				//x = 2 * (ind + 1);
 				x=ind + 1;
 				BigInteger hashInv = Utils.computeSha256(x, pwd).modInverse(q);
 				y = alphas.get(ind).multiply(hashInv).mod(q);
 			} else {
-				//x = 2 * (ind ) + 1;//$ind+1
 				testing.append(ind+": sup, ");
 				x=ind + 1;
 				BigInteger hashInv = Utils.computeSha256(x, pwd).modInverse(q);
@@ -152,6 +134,7 @@ public class Authentication {
 		Log.d("hpwd","hpwd  : "+hpwd.toString());
 		// Attempt to decrypt the file
 		byte[] history = Utils.readFrom("history" + userId, ctx);
+		//byte[] history = Utils.readFromExt("history" + userId, ctx);TODO
 		history = Utils.decrypt(history, hpwd.toString().toCharArray());
 		String historyString = "";
 		try {
@@ -192,6 +175,7 @@ public class Authentication {
 			byte[] cipher = Utils.encrypt(newHistory, hpwd.toString()
 					.toCharArray());
 			Utils.writeToFile(cipher, "history" + userId, ctx);
+			//Utils.writeToExtFile(cipher, "history" + userId, ctx);TODO
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -215,36 +199,20 @@ public class Authentication {
 		} else {
 			threshold = thresholdTimeBetweenPressLandscape;
 		}
-		int nbDistFeat=0;// TEST
 		Log.i("features","attempt "+hFile.getSize());
 		for (int i = 0; i < m; i++) {
 			// Computation of the new values for alpha and beta
-			//int x1 = 2 * (i + 1);
-			//int x2 = x1 - 1;
 			int x1 = i+1;
 			int x2 = i+1;
 			BigInteger y1;
 			BigInteger y2;
-			if(hFile.getSize() == 9){//TEST
-
-				if (i == (featureVector.size() - 1) / 2) {
-					threshold = thresholdPress;
-				}
-				double mu = meanValues.get(i);
-				double sigma = deviations.get(i);
-				if (Math.abs(mu - threshold) > k * sigma) {
-					nbDistFeat++;// TEST
-				}
-			}
 			if (hFile.getSize() == hSize) {
-				//Log.i("features","yay");
 				double mu = meanValues.get(i);
 				double sigma = deviations.get(i);
 				if (i == (featureVector.size() - 1) / 2) {
 					threshold = thresholdPress;
 				}
 				if (Math.abs(mu - threshold) > k * sigma) {
-					//nbDistFeat++;// TEST
 					if (mu < threshold) {
 						testing.append(i+": inf, ");
 						y1 = Utils.valueOfPolynomial(x1, polynomial);
@@ -259,7 +227,6 @@ public class Authentication {
 					y2 = Utils.valueOfPolynomial(x2, polynomial);
 				}
 			} else {
-				//Log.i("features","nay "+hFile.getSize());
 				y1 = Utils.valueOfPolynomial(x1, polynomial);
 				y2 = Utils.valueOfPolynomial(x2, polynomial);
 			}
@@ -270,18 +237,6 @@ public class Authentication {
 			newAlphas.add(alpha);
 			newBetas.add(beta);
 		}
-		Log.d("Features",testing.toString());
-		if(hFile.getSize() == 9){
-		Log.d("Features","distinguishing features : "+nbDistFeat+", features :"+m);// TEST
-		int nu= userNum.get(userId);
-		userNum.put(userId, nu+1);
-		int dis=userDist.get(userId);
-		userDist.put(userId, dis+nbDistFeat);
-		numFeat+=nbDistFeat;//TEST
-		}
-		auth++;//TEST
-		double d =((double)nbDistFeat)/((double)m);// TEST
-		Log.d("Features","percentages: "+d); // TEST
 		InstructionTable newTable = new InstructionTable(newAlphas, newBetas, q);
 		storeInstructionTable(newTable, userId, ctx);
 		return true;
@@ -301,7 +256,8 @@ public class Authentication {
 			content += " " + table.getAlphas().get(i) + " "
 					+ table.getBetas().get(i);
 		}
-		Utils.writeToFile(content.getBytes(), "inst" + userId, ctx);
+		Utils.writeToFile(content.getBytes(), "instruction" + userId, ctx);
+		//Utils.writeToExtFileString(content, "instruction" + userId, ctx);TODO
 	}
 
 	/**
@@ -316,9 +272,10 @@ public class Authentication {
 		InstructionTable result;
 		Vector<BigInteger> alphas = new Vector<BigInteger>();
 		Vector<BigInteger> betas = new Vector<BigInteger>();
-		String path = "inst" + userId;
+		String path = "instruction" + userId;
 		String content = "";
 		content = Utils.readFileString(path, ctx);
+		//content = Utils.readExtFileString(path, ctx);TODO
 		String[] parts = content.split("\\s+");
 		BigInteger q = new BigInteger(parts[0]);
 		for (int i = 1; i < parts.length; i = i + 2) {
@@ -366,5 +323,12 @@ public class Authentication {
 		File file = ctx.getFileStreamPath("history" + userId);
 		Log.d("userExists", userId + ";" + file.exists());
 		return file.exists();
+		/*String hashPath = Utils.sha256("history"+userId);TODO
+		File root = android.os.Environment.getExternalStorageDirectory();
+		File f = new File(root.getAbsolutePath()
+				+ "/KeystrokeDynamicsLogin/"+hashPath);
+
+		Log.d("userExists", f.getAbsolutePath());
+		return f.exists();*/
 	}
 }

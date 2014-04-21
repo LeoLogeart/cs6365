@@ -8,14 +8,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Vector;
 
-import android.content.Context;
 import android.util.Log;
 
 public class Testing {
@@ -191,62 +186,62 @@ public class Testing {
 	}
 	
 	
-	public static void Test(Context ctx) {
-		ArrayList<File> files = (ArrayList<File>) getListFiles();
-		String content;
-		Authentication.numFeat=0;
-		Authentication.auth=0;
-		Authentication.userDist=new HashMap<String, Integer>();
-		Authentication.userNum=new HashMap<String, Integer>();
-		int frr=0;
-		int n=0;
-		for (File file : files) {
-			if (!file.isDirectory()) {
-				n++;
-				content = readFromFile(file);
-				String username = getUserName(file.getName());
-				String pwd=getPwd(content);
-				//String username = getUserNameSIDE(file.getName());
-				Vector<Double> features = getFeatures(content);
-				//System.out.println(username);
-				//System.out.println(pwd);
-				Log.d("Testing","+++++++++++++++++++++");
-				boolean landscape = file.getName().contains("side") || file.getName().contains("SIDE");
-				if(!Authentication.userExists(username, ctx)){
-					Log.d("Testing","Register : "+username+";"+pwd);
-					Authentication.initialization(username, features.size(), pwd, ctx);
-				}
-				if(!Authentication.authenticate(features, username, pwd, ctx, !landscape, username.contains("PIN"))){
-					Log.d("Testing","FAIL : "+username+";"+pwd);
-					Log.d("Testing","FAIL : "+file.getName());
-					frr++;
-				}
-				
-			}
-		}	
-		
-		Iterator<Entry<String,Integer>> it = Authentication.userDist.entrySet().iterator();
-		int total=0;
-		double totDist=0;
-	    while (it.hasNext()) {
-	        Map.Entry<String,Integer> pairs = (Map.Entry<String,Integer>)it.next();
-	        totDist+=((double)pairs.getValue())/((double)Authentication.userNum.get(pairs.getKey()));
-	        total++;
-	    }
-	    double ok=totDist/((double) total);
-		Log.d("Testing","test : "+totDist+" "+total);
-		Log.d("Testing","features per acc : "+ok);
-		Log.d("Testing","mean dist feat : "+Authentication.numFeat);
-		Log.d("Testing","mean dist feat : "+Authentication.numFeat);
-		Log.d("Testing","successful auth : "+Authentication.auth);
-		double mf = ((double)Authentication.numFeat)/((double)n);
-		Log.d("Testing","FRR : "+frr);
-		Log.d("Testing","logs : "+n);
-		Log.d("Testing","mean dist feat : "+mf);
-	}
+//	public static void Test(Context ctx) {
+//		ArrayList<File> files = (ArrayList<File>) getListFiles();
+//		String content;
+//		Authentication.numFeat=0;
+//		Authentication.auth=0;
+//		Authentication.userDist=new HashMap<String, Integer>();
+//		Authentication.userNum=new HashMap<String, Integer>();
+//		int frr=0;
+//		int n=0;
+//		for (File file : files) {
+//			if (!file.isDirectory()) {
+//				n++;
+//				content = readFromFile(file);
+//				String username = getUserName(file.getName());
+//				String pwd=getPwd(content);
+//				//String username = getUserNameSIDE(file.getName());
+//				Vector<Double> features = getFeatures(content);
+//				//System.out.println(username);
+//				//System.out.println(pwd);
+//				Log.d("Testing","+++++++++++++++++++++");
+//				boolean landscape = file.getName().contains("side") || file.getName().contains("SIDE");
+//				if(!Authentication.userExists(username, ctx)){
+//					Log.d("Testing","Register : "+username+";"+pwd);
+//					Authentication.initialization(username, features.size(), pwd, ctx);
+//				}
+//				if(!Authentication.authenticate(features, username, pwd, ctx, !landscape, username.contains("PIN"))){
+//					Log.d("Testing","FAIL : "+username+";"+pwd);
+//					Log.d("Testing","FAIL : "+file.getName());
+//					frr++;
+//				}
+//				
+//			}
+//		}	
+//		
+//		Iterator<Entry<String,Integer>> it = Authentication.userDist.entrySet().iterator();
+//		int total=0;
+//		double totDist=0;
+//	    while (it.hasNext()) {
+//	        Map.Entry<String,Integer> pairs = (Map.Entry<String,Integer>)it.next();
+//	        totDist+=((double)pairs.getValue())/((double)Authentication.userNum.get(pairs.getKey()));
+//	        total++;
+//	    }
+//	    double ok=totDist/((double) total);
+//		Log.d("Testing","test : "+totDist+" "+total);
+//		Log.d("Testing","features per acc : "+ok);
+//		Log.d("Testing","mean dist feat : "+Authentication.numFeat);
+//		Log.d("Testing","mean dist feat : "+Authentication.numFeat);
+//		Log.d("Testing","successful auth : "+Authentication.auth);
+//		double mf = ((double)Authentication.numFeat)/((double)n);
+//		Log.d("Testing","FRR : "+frr);
+//		Log.d("Testing","logs : "+n);
+//		Log.d("Testing","mean dist feat : "+mf);
+//	}
 
 
-	private static Vector<Double> getFeatures(String content) {
+	public static Vector<Double> getFeatures(String content) {
 		Vector<Double> res = new Vector<Double>();
 		String features = content.split(",")[1];
 		String[] f = features.split(";");
@@ -261,13 +256,13 @@ public class Testing {
 	}
 
 
-	private static String getPwd(String content) {
+	public static String getPwd(String content) {
 		return content.split(",")[0];
 	}
 
 
 
-	private static String getUserName(String name) {
+	public static String getUserName(String name) {
 		String res =name;
 		/*if(name.contains("PIN")){
 			res=name.substring(3, name.length());
