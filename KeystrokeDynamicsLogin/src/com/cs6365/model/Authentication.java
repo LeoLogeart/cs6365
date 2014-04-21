@@ -18,7 +18,7 @@ public class Authentication {
 	private final static int thresholdPress = 200;
 	private final static int hSize = 10;
 	private final static int hByteSize = 3200;
-	private final static double k = 0.1;
+	private final static double k = 1.;
 
 	public static int numFeat;
 	public static Map<String,Integer> userDist;
@@ -92,10 +92,11 @@ public class Authentication {
 	 * @return
 	 */
 	public static boolean authenticate(Vector<Double> featureVector,
-			String userId, String pwd, Context ctx, boolean portrait) {
-		//TODO take portrait into account
+			String userId, String pwd, Context ctx, boolean portrait, boolean pin) {
+		//TODO take portrait and PIN into account
+		//TODO if input too large => return false
 		///////////
-		boolean pin=userId.contains("PIN");
+		//boolean pin=userId.contains("PIN");
 		
 		///////////
 		// Loading of the user's instruction table
@@ -121,6 +122,9 @@ public class Authentication {
 		}
 		
 		StringBuilder testing = new StringBuilder();
+		if(featureVector.size()>alphas.size()){//Password too long
+			return false;
+		}
 		for (int ind = 0; ind < featureVector.size(); ind++) {
 			if (ind == (featureVector.size() - 1) / 2) {
 				threshold = thresholdPress;

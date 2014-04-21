@@ -1,9 +1,6 @@
 package com.cs6365.keystrokeDynamicsLogin;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Vector;
 
@@ -22,7 +19,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.cs6365.model.Authentication;
-import com.cs6365.model.Utils;
 
 public class LoginActivity extends Activity {
 
@@ -43,16 +39,14 @@ public class LoginActivity extends Activity {
 	private long lastDown;
 	private List<Long> pressTime = new ArrayList<Long>();
 	private List<Long> timeBetweenPress = new ArrayList<Long>();
-	private boolean register=false;
+	private boolean register = false;
 	private String name;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Intent intent = getIntent();
-		register=(intent.getStringExtra("new")!=null);
-		
-		
+		register = (intent.getStringExtra("new") != null);
 
 		name = intent.getStringExtra("name");
 		setContentView(R.layout.activity_login);
@@ -69,8 +63,8 @@ public class LoginActivity extends Activity {
 		button8 = (Button) findViewById(R.id.button8);
 		button9 = (Button) findViewById(R.id.button9);
 		buttonClear = (Button) findViewById(R.id.buttonClear);
-		
-		if(register){
+
+		if (register) {
 			buttonLogin.setText("register");
 		}
 
@@ -79,78 +73,85 @@ public class LoginActivity extends Activity {
 		username.setText(name);
 		pwd = (EditText) findViewById(R.id.password);
 		pwd.setEnabled(false);
-		
-		setListeners(button0,0);
-		setListeners(button1,1);
-		setListeners(button2,2);
-		setListeners(button3,3);
-		setListeners(button4,4);
-		setListeners(button5,5);
-		setListeners(button6,6);
-		setListeners(button7,7);
-		setListeners(button8,8);
-		setListeners(button9,9);
-		
+
+		setListeners(button0, 0);
+		setListeners(button1, 1);
+		setListeners(button2, 2);
+		setListeners(button3, 3);
+		setListeners(button4, 4);
+		setListeners(button5, 5);
+		setListeners(button6, 6);
+		setListeners(button7, 7);
+		setListeners(button8, 8);
+		setListeners(button9, 9);
+
 		buttonClear.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				pwd.setText("");
-				lastDown=0;
+				lastDown = 0;
 				pressTime = new ArrayList<Long>();
 				timeBetweenPress = new ArrayList<Long>();
 
 			}
 		});
-		
+
 		buttonLogin.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				StringBuilder str = new StringBuilder();
 				Vector<Double> featureVector = new Vector<Double>();
-				for (int i =0 ; i<timeBetweenPress.size();i++){
-					//Log.d("time between each btn", timeBetweenPress.get(i).toString());
+				for (int i = 0; i < timeBetweenPress.size(); i++) {
+					// Log.d("time between each btn",
+					// timeBetweenPress.get(i).toString());
 					featureVector.add(timeBetweenPress.get(i).doubleValue());
-					str.append(timeBetweenPress.get(i)+";");
+					str.append(timeBetweenPress.get(i) + ";");
 				}
-				
-				for (int j =0 ; j<pressTime.size();j++){
-					//Log.d("pressed time", pressTime.get(j).toString());
-					featureVector.add(pressTime.get(j).doubleValue());
-					str.append(pressTime.get(j)+";");
-				}
-				
-				if(register){	
-//					Testing.getMean();
-					//////////////
-					DateFormat dateFormat = new SimpleDateFormat("dd;MM;yyyy;HH:mm:ss",java.util.Locale.getDefault());
-					Calendar cal = Calendar.getInstance();
-					System.out.println(dateFormat.format(cal.getTime()));
-					Utils.writeTo("PIN"+name+dateFormat.format(cal.getTime())+".txt",pwd.getText().toString()+","+str.toString());
 
-					pwd.setText("");
-					lastDown=0;
-					pressTime = new ArrayList<Long>();
-					timeBetweenPress = new ArrayList<Long>();
-					//////////////
-					
-					//Authentication.initialization(name, featureVector.size(),pwd.getText().toString(), getApplicationContext());
+				for (int j = 0; j < pressTime.size(); j++) {
+					// Log.d("pressed time", pressTime.get(j).toString());
+					featureVector.add(pressTime.get(j).doubleValue());
+					str.append(pressTime.get(j) + ";");
+				}
+
+				if (register) {
+					// Testing.getMean();
+					// ////////////
+					/*
+					 * DateFormat dateFormat = new
+					 * SimpleDateFormat("dd;MM;yyyy;HH:mm:ss"
+					 * ,java.util.Locale.getDefault()); Calendar cal =
+					 * Calendar.getInstance();
+					 * System.out.println(dateFormat.format(cal.getTime()));
+					 * Utils
+					 * .writeTo("PIN"+name+dateFormat.format(cal.getTime())+
+					 * ".txt",pwd.getText().toString()+","+str.toString());
+					 * 
+					 * pwd.setText(""); lastDown=0; pressTime = new
+					 * ArrayList<Long>(); timeBetweenPress = new
+					 * ArrayList<Long>();
+					 */
+					// ////////////
+
+					Authentication.initialization(name, featureVector.size(),
+							pwd.getText().toString(), getApplicationContext());
 				} else {
 					getResources().getConfiguration();
-					boolean portrait = getResources().getConfiguration().orientation==Configuration.ORIENTATION_PORTRAIT;
-					if(Authentication.authenticate(featureVector, name, pwd.getText().toString(), getApplicationContext(),portrait)){
-						Toast.makeText(getApplicationContext(),
-								"success!", Toast.LENGTH_SHORT)
-								.show();
+					boolean portrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+					if (Authentication.authenticate(featureVector, name, pwd
+							.getText().toString(), getApplicationContext(),
+							portrait, true)) {
+						Toast.makeText(getApplicationContext(), "success!",
+								Toast.LENGTH_SHORT).show();
 						Intent intent = new Intent(LoginActivity.this,
 								MainActivity.class);
 						startActivity(intent);
 						finishActivity(0);
 					} else {
-						Toast.makeText(getApplicationContext(),
-								"failure", Toast.LENGTH_SHORT)
-								.show();
+						Toast.makeText(getApplicationContext(), "failure",
+								Toast.LENGTH_SHORT).show();
 						pwd.setText("");
-						lastDown=0;
+						lastDown = 0;
 						pressTime = new ArrayList<Long>();
 						timeBetweenPress = new ArrayList<Long>();
 					}
@@ -165,8 +166,8 @@ public class LoginActivity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 					long time = System.currentTimeMillis();
-					if(lastDown!=0){
-						timeBetweenPress.add(time-lastDown);
+					if (lastDown != 0) {
+						timeBetweenPress.add(time - lastDown);
 					}
 					lastDown = time;
 				} else if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -178,7 +179,7 @@ public class LoginActivity extends Activity {
 		button.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				pwd.setText(pwd.getText().toString()+i);
+				pwd.setText(pwd.getText().toString() + i);
 			}
 		});
 	}

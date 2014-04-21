@@ -99,8 +99,8 @@ public class MainActivity extends Activity {
 					Intent intent = new Intent(MainActivity.this,
 							LoginAlphaActivity.class);
 					intent.putExtra("name", name.getText().toString());
-					startActivity(intent);
-					finish();
+					startActivityForResult(intent, 0);
+					//finish();
 				}
 			}
 		});

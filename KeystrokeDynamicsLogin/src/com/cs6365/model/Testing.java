@@ -216,7 +216,7 @@ public class Testing {
 					Log.d("Testing","Register : "+username+";"+pwd);
 					Authentication.initialization(username, features.size(), pwd, ctx);
 				}
-				if(!Authentication.authenticate(features, username, pwd, ctx, !landscape)){
+				if(!Authentication.authenticate(features, username, pwd, ctx, !landscape, username.contains("PIN"))){
 					Log.d("Testing","FAIL : "+username+";"+pwd);
 					Log.d("Testing","FAIL : "+file.getName());
 					frr++;
