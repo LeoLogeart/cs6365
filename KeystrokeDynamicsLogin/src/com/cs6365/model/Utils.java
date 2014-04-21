@@ -352,7 +352,6 @@ public class Utils {
 	public static String readFileString(String path, Context ctx) {
 		FileInputStream fis = null;
 		StringBuffer fileContent = new StringBuffer("");
-		Log.d("REEEEAAAD", path);
 		try {
 			fis = ctx.openFileInput(path);
 			byte[] buffer = new byte[1024];

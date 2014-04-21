@@ -135,6 +135,9 @@ public class LoginActivity extends Activity {
 
 					Authentication.initialization(name, featureVector.size(),
 							pwd.getText().toString(), getApplicationContext());
+					Intent returnIntent = new Intent();
+					setResult(RESULT_OK,returnIntent);     
+					finish();
 				} else {
 					getResources().getConfiguration();
 					boolean portrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
@@ -143,10 +146,13 @@ public class LoginActivity extends Activity {
 							portrait, true)) {
 						Toast.makeText(getApplicationContext(), "success!",
 								Toast.LENGTH_SHORT).show();
-						Intent intent = new Intent(LoginActivity.this,
+						/*Intent intent = new Intent(LoginActivity.this,
 								MainActivity.class);
 						startActivity(intent);
-						finishActivity(0);
+						finishActivity(0);*/
+						Intent returnIntent = new Intent();
+						setResult(RESULT_OK,returnIntent);     
+						finish();
 					} else {
 						Toast.makeText(getApplicationContext(), "failure",
 								Toast.LENGTH_SHORT).show();

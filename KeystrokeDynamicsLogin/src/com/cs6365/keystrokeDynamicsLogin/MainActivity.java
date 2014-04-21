@@ -75,8 +75,9 @@ public class MainActivity extends Activity {
 							LoginActivity.class);
 					intent.putExtra("name", name.getText().toString());
 					intent.putExtra("new", "register");
-					startActivity(intent);
-					finish();
+					startActivityForResult(intent, 0);
+					/*startActivity(intent);
+					finish();*/
 				}
 			}
 		});
@@ -121,8 +122,9 @@ public class MainActivity extends Activity {
 							LoginAlphaActivity.class);
 					intent.putExtra("name", name.getText().toString());
 					intent.putExtra("new", "register");
-					startActivity(intent);
-					finish();
+					startActivityForResult(intent, 0);
+					/*startActivity(intent);
+					finish();*/
 				}
 			}
 		});

@@ -152,10 +152,14 @@ public class LoginAlphaActivity extends Activity {
 						Toast.makeText(getApplicationContext(), "success!",
 								Toast.LENGTH_SHORT).show();
 
-						Intent intent = new Intent(LoginAlphaActivity.this,
+						/*Intent intent = new Intent(LoginAlphaActivity.this,
 								MainActivity.class);
 						startActivity(intent);
-						finishActivity(0);
+						finishActivity(0);*/
+
+						Intent returnIntent = new Intent();
+						setResult(RESULT_OK,returnIntent);     
+						finish();
 					} else {
 						Toast.makeText(getApplicationContext(), "failure",
 								Toast.LENGTH_SHORT).show();
