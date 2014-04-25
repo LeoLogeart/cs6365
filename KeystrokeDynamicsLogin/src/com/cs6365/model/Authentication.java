@@ -237,6 +237,7 @@ public class Authentication {
 			newAlphas.add(alpha);
 			newBetas.add(beta);
 		}
+		Log.d("Distinguishing",testing.toString());
 		InstructionTable newTable = new InstructionTable(newAlphas, newBetas, q);
 		storeInstructionTable(newTable, userId, ctx);
 		return true;
