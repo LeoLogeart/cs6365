@@ -554,7 +554,7 @@ public class Utils {
 			e.printStackTrace();
 		}
 
-		String normalized = Normalizer.normalize(hash.toString(), Form.NFD);
+		String normalized = Normalizer.normalize(new String(hash), Form.NFD);
 		String result = normalized.replaceAll("[^A-Za-z0-9]", "");
 		return result;
 	}

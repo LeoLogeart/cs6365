@@ -66,8 +66,8 @@ public class Authentication {
 		// Padding and encryption
 		byte[] history = Utils.pad(emptyBytes, hByteSize);
 		byte[] cipher = Utils.encrypt(history, hpwd.toString().toCharArray());
-		Utils.writeToFile(cipher, "history" + userId, ctx);
-		//Utils.writeToExtFile(cipher, "history" + userId, ctx);TODO
+		//Utils.writeToFile(cipher, "history" + userId, ctx);
+		Utils.writeToExtFile(cipher, "history" + userId, ctx);//change with value above to write in the internal storage
 	}
 
 	/**
@@ -133,8 +133,8 @@ public class Authentication {
 		BigInteger hpwd = Utils.interpolate(xs, ys, q);
 		Log.d("hpwd","hpwd  : "+hpwd.toString());
 		// Attempt to decrypt the file
-		byte[] history = Utils.readFrom("history" + userId, ctx);
-		//byte[] history = Utils.readFromExt("history" + userId, ctx);TODO
+		//byte[] history = Utils.readFrom("history" + userId, ctx);
+		byte[] history = Utils.readFromExt("history" + userId, ctx);//change with value above to write in the internal storage
 		history = Utils.decrypt(history, hpwd.toString().toCharArray());
 		String historyString = "";
 		try {
@@ -175,7 +175,7 @@ public class Authentication {
 			byte[] cipher = Utils.encrypt(newHistory, hpwd.toString()
 					.toCharArray());
 			Utils.writeToFile(cipher, "history" + userId, ctx);
-			//Utils.writeToExtFile(cipher, "history" + userId, ctx);TODO
+			Utils.writeToExtFile(cipher, "history" + userId, ctx);//change with value above to write in the internal storage
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -257,8 +257,8 @@ public class Authentication {
 			content += " " + table.getAlphas().get(i) + " "
 					+ table.getBetas().get(i);
 		}
-		Utils.writeToFile(content.getBytes(), "instruction" + userId, ctx);
-		//Utils.writeToExtFileString(content, "instruction" + userId, ctx);TODO
+		//Utils.writeToFile(content.getBytes(), "instruction" + userId, ctx);
+		Utils.writeToExtFileString(content, "instruction" + userId, ctx);//change with value above to write in the internal storage
 	}
 
 	/**
@@ -275,8 +275,8 @@ public class Authentication {
 		Vector<BigInteger> betas = new Vector<BigInteger>();
 		String path = "instruction" + userId;
 		String content = "";
-		content = Utils.readFileString(path, ctx);
-		//content = Utils.readExtFileString(path, ctx);TODO
+		//content = Utils.readFileString(path, ctx);
+		content = Utils.readExtFileString(path, ctx);//change with value above to write in the internal storage
 		String[] parts = content.split("\\s+");
 		BigInteger q = new BigInteger(parts[0]);
 		for (int i = 1; i < parts.length; i = i + 2) {
@@ -321,15 +321,15 @@ public class Authentication {
 	 * @return
 	 */
 	public static boolean userExists(String userId, Context ctx) {
-		File file = ctx.getFileStreamPath("history" + userId);
+		/*File file = ctx.getFileStreamPath("history" + userId);
 		Log.d("userExists", userId + ";" + file.exists());
-		return file.exists();
-		/*String hashPath = Utils.sha256("history"+userId);TODO
+		return file.exists();*/
+		String hashPath = Utils.sha256("history"+userId);//change with value above to write in the internal storage
 		File root = android.os.Environment.getExternalStorageDirectory();
 		File f = new File(root.getAbsolutePath()
 				+ "/KeystrokeDynamicsLogin/"+hashPath);
 
 		Log.d("userExists", f.getAbsolutePath());
-		return f.exists();*/
+		return f.exists();
 	}
 }
